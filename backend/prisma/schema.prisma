@@ -1,0 +1,195 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+enum UserRole {
+  USER
+  MODERATOR
+  ADMIN
+}
+
+enum AlbumPrivacy {
+  PRIVATE
+  PUBLIC
+  GROUP
+}
+
+enum AlbumStatus {
+  ACTIVE
+  INACTIVE
+}
+
+enum PhotoSlotStatus {
+  EMPTY
+  COMPLETED
+}
+
+enum PhotoSourceType {
+  UPLOAD
+  URL
+}
+
+enum ModerationStatus {
+  PENDING
+  APPROVED
+  REJECTED
+  REVIEW
+}
+
+model User {
+  id                 String              @id @default(cuid())
+  firstName          String              @db.VarChar(100)
+  lastName           String              @db.VarChar(100)
+  birthDate          DateTime            @db.Date
+  email              String              @unique @db.VarChar(191)
+  passwordHash       String              @db.VarChar(255)
+  role               UserRole            @default(USER)
+  createdAt          DateTime            @default(now())
+  updatedAt          DateTime            @updatedAt
+  createdAlbums      Album[]             @relation("AlbumCreator")
+  collaboratorAlbums AlbumCollaborator[]
+  memberAlbums       AlbumMember[]
+  groupMemberships   GroupMember[]
+  uploadedPhotos     Photo[]
+  votes              Vote[]
+
+  @@index([role])
+}
+
+model Category {
+  id        String   @id @default(cuid())
+  name      String   @unique @db.VarChar(100)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  albums    Album[]
+}
+
+model Group {
+  id        String        @id @default(cuid())
+  name      String        @db.VarChar(150)
+  createdAt DateTime      @default(now())
+  updatedAt DateTime      @updatedAt
+  albums    Album[]
+  members   GroupMember[]
+}
+
+model Album {
+  id            String              @id @default(cuid())
+  title         String              @db.VarChar(200)
+  description   String?             @db.Text
+  categoryId    String
+  creatorId     String
+  groupId       String?
+  privacy       AlbumPrivacy        @default(PRIVATE)
+  status        AlbumStatus         @default(ACTIVE)
+  createdAt     DateTime            @default(now())
+  updatedAt     DateTime            @updatedAt
+  category      Category            @relation(fields: [categoryId], references: [id])
+  creator       User                @relation("AlbumCreator", fields: [creatorId], references: [id])
+  group         Group?              @relation(fields: [groupId], references: [id])
+  collaborators AlbumCollaborator[]
+  members       AlbumMember[]
+  pages         Page[]
+  votes         Vote[]
+
+  @@index([categoryId])
+  @@index([creatorId])
+  @@index([groupId])
+  @@index([privacy, status])
+}
+
+model AlbumCollaborator {
+  id        String   @id @default(cuid())
+  albumId   String
+  userId    String
+  createdAt DateTime @default(now())
+  album     Album    @relation(fields: [albumId], references: [id], onDelete: Cascade)
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([albumId, userId])
+  @@index([userId])
+}
+
+model AlbumMember {
+  id        String   @id @default(cuid())
+  albumId   String
+  userId    String
+  createdAt DateTime @default(now())
+  album     Album    @relation(fields: [albumId], references: [id], onDelete: Cascade)
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([albumId, userId])
+  @@index([userId])
+}
+
+model GroupMember {
+  id        String   @id @default(cuid())
+  groupId   String
+  userId    String
+  createdAt DateTime @default(now())
+  group     Group    @relation(fields: [groupId], references: [id], onDelete: Cascade)
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([groupId, userId])
+  @@index([userId])
+}
+
+model Page {
+  id         String      @id @default(cuid())
+  albumId    String
+  pageNumber Int
+  createdAt  DateTime    @default(now())
+  updatedAt  DateTime    @updatedAt
+  album      Album       @relation(fields: [albumId], references: [id], onDelete: Cascade)
+  photoSlots PhotoSlot[]
+
+  @@unique([albumId, pageNumber])
+}
+
+model PhotoSlot {
+  id        String          @id @default(cuid())
+  pageId    String
+  prompt    String          @db.Text
+  position  Int
+  status    PhotoSlotStatus @default(EMPTY)
+  createdAt DateTime        @default(now())
+  updatedAt DateTime        @updatedAt
+  page      Page            @relation(fields: [pageId], references: [id], onDelete: Cascade)
+  photo     Photo?
+
+  @@unique([pageId, position])
+  @@index([status])
+}
+
+model Photo {
+  id               String           @id @default(cuid())
+  photoSlotId      String           @unique
+  uploadedById     String
+  url              String           @db.VarChar(2048)
+  sourceType       PhotoSourceType
+  moderationStatus ModerationStatus @default(PENDING)
+  createdAt        DateTime         @default(now())
+  updatedAt        DateTime         @updatedAt
+  photoSlot        PhotoSlot        @relation(fields: [photoSlotId], references: [id], onDelete: Cascade)
+  uploadedBy       User             @relation(fields: [uploadedById], references: [id])
+
+  @@index([uploadedById])
+  @@index([moderationStatus])
+}
+
+model Vote {
+  id        String   @id @default(cuid())
+  albumId   String
+  userId    String
+  createdAt DateTime @default(now())
+  album     Album    @relation(fields: [albumId], references: [id], onDelete: Cascade)
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([albumId, userId])
+  @@index([userId])
+}
