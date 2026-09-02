@@ -1,29 +1,15 @@
-# Álbumes de Fotos Digitales Interactivos
+# album
 
-Estructura inicial del proyecto:
+compartimos una direccion email parar usar todas las IAs desde ahi y compilar nuestro trabajo mas facil luego
 
-- `frontend/`: React, Vite y TypeScript.
-- `backend/`: Express, TypeScript y Prisma configurado para MySQL.
 
-## Requisitos
 
-- Node.js 22 LTS (ver `.nvmrc`)
-- MySQL 8.4 LTS para usar la futura conexión de Prisma
 
-## Desarrollo
 
-En terminales separadas:
+DATA: 
+copilot = modelos chicos
+claude gemini = modelos grandes.
 
-```bash
-cd frontend
-npm run dev
-```
+usas los modelos chicos cuando ya estas con instrucciones de programacion claras y no necesitas reconocer contexto
 
-```bash
-cd backend
-copy .env.example .env
-npm run dev
-```
-
-Antes de ejecutar comandos de Prisma, configura `DATABASE_URL` en `backend/.env`.
-
+y los grandes para orquestrar
