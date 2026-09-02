@@ -6,17 +6,20 @@
   "scripts": {
     "dev": "tsx watch src/server.ts",
     "build": "tsc -p tsconfig.json",
+    "test": "npm run build && node --test tests/*.test.mjs",
     "start": "node dist/server.js",
     "prisma:generate": "prisma generate"
   },
   "dependencies": {
     "@prisma/client": "^6.19.0",
+    "@types/multer": "^2.2.0",
     "argon2": "^0.45.1",
     "cors": "^2.8.6",
     "dotenv": "^16.6.1",
     "express": "^5.1.0",
     "helmet": "^8.3.0",
     "jsonwebtoken": "^9.0.3",
+    "multer": "^2.3.0",
     "zod": "^4.5.4"
   },
   "devDependencies": {

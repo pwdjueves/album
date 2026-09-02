@@ -35,4 +35,8 @@ export const env = {
   corsOrigins: parseCorsOrigins(process.env.CORS_ORIGIN),
   jwtSecret: requireEnvironmentVariable('JWT_SECRET'),
   jwtExpiresIn: process.env.JWT_EXPIRES_IN ?? '1h',
+  cloudinaryCloudName: process.env.CLOUDINARY_CLOUD_NAME,
+  cloudinaryApiKey: process.env.CLOUDINARY_API_KEY,
+  cloudinaryApiSecret: process.env.CLOUDINARY_API_SECRET,
+  cloudinaryUploadPreset: process.env.CLOUDINARY_UPLOAD_PRESET,
 } as const;

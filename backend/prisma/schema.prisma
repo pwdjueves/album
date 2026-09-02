@@ -170,7 +170,7 @@ model Photo {
   id               String           @id @default(cuid())
   photoSlotId      String           @unique
   uploadedById     String
-  url              String           @db.VarChar(2048)
+  imageUrl         String           @map("url") @db.VarChar(2048)
   sourceType       PhotoSourceType
   moderationStatus ModerationStatus @default(PENDING)
   createdAt        DateTime         @default(now())
