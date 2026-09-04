@@ -2,6 +2,7 @@ import { createHmac } from 'node:crypto';
 import { env } from '../config/env.js';
 import { AppError } from '../utils/app-error.js';
 import type { StorageProvider, StorageUpload } from './storage.provider.js';
+import { LocalStorage } from './local.storage.js';
 
 type CloudinaryResponse = {
   secure_url?: string;
@@ -45,4 +46,5 @@ export class CloudinaryStorage implements StorageProvider {
   }
 }
 
-export const imageStorage: StorageProvider = new CloudinaryStorage();
+export const imageStorage: StorageProvider =
+  env.storageProvider === 'cloudinary' ? new CloudinaryStorage() : new LocalStorage();

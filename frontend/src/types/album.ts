@@ -14,9 +14,9 @@ export type PhotoSlot = {
   photo: Photo | null;
 };
 
-export type AlbumPage = { id: string; pageNumber: number; photoSlots: PhotoSlot[] };
+export type AlbumPage = { id: string; title: string; pageNumber: number; photoSlots: PhotoSlot[] };
 
-export type AlbumPermissions = { canComplete: boolean };
+export type AlbumPermissions = { canComplete: boolean; canModerate?: boolean };
 
 export type Album = {
   id: string;
@@ -29,4 +29,4 @@ export type Album = {
   pages?: AlbumPage[];
   permissions?: AlbumPermissions;
 };
-export type RankedAlbum = { album: Album; voteCount: number };
+export type RankedAlbum = { album: Album; voteCount: number; voted: boolean };

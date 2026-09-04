@@ -2,7 +2,7 @@ import { PhotoSourceType, type Photo } from '@prisma/client';
 import { imageStorage } from '../storage/cloudinary.storage.js';
 import type { StorageUpload } from '../storage/storage.provider.js';
 import { photoRepository } from '../repositories/photo.repository.js';
-import { canCompleteAlbum, getAlbumAuthorizationContext, type AuthorizationActor } from './authorization.service.js';
+import { canCompleteAlbum, canModerate, getAlbumAuthorizationContext, type AuthorizationActor } from './authorization.service.js';
 import { AppError } from '../utils/app-error.js';
 import { withImageUrl } from '../utils/photo-metadata.js';
 
@@ -45,6 +45,15 @@ export const photoService = {
     try {
       const photo = await photoRepository.completeSlot(albumId, pageId, slotId, actor.userId, imageUrl, PhotoSourceType.UPLOAD);
       return toPhotoMetadata(photo);
+    } catch (error) {
+      return translatePhotoError(error);
+    }
+  },
+
+  async removePhoto(albumId: string, pageId: string, slotId: string, actor: AuthorizationActor): Promise<void> {
+    if (!canModerate(actor)) throw new AppError('Moderation role required', 403);
+    try {
+      await photoRepository.removeFromSlot(albumId, pageId, slotId);
     } catch (error) {
       return translatePhotoError(error);
     }

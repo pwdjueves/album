@@ -3,7 +3,7 @@ import { albumService } from '../services/album.service.js';
 import { AppError } from '../utils/app-error.js';
 import { withImageUrl } from '../utils/photo-metadata.js';
 import { canCompleteAlbum, getAlbumAuthorizationContext } from '../services/authorization.service.js';
-import type { CreateAlbumInput, UpdateAlbumInput } from '../validators/album.validator.js';
+import type { CreateAlbumInput, ModerationInput, UpdateAlbumInput } from '../validators/album.validator.js';
 
 function getActor(request: Request) {
   return { userId: request.auth!.userId, role: request.auth!.role };
@@ -45,6 +45,14 @@ export const albumController = {
     response.status(200).json({ albums });
   },
 
+  async listCreated(request: Request, response: Response): Promise<void> {
+    response.json({ albums: await albumService.listCreated(request.auth!.userId) });
+  },
+
+  async listCollaborated(request: Request, response: Response): Promise<void> {
+    response.json({ albums: await albumService.listCollaborated(request.auth!.userId) });
+  },
+
   async getById(request: Request, response: Response): Promise<void> {
     const albumId = getAlbumId(request);
     const actor = getOptionalActor(request);
@@ -54,6 +62,7 @@ export const albumController = {
       album: withPhotoMetadata(album),
       permissions: {
         canComplete: context ? canCompleteAlbum(context) : false,
+        canModerate: request.auth ? context?.isModerator === true : false,
       },
     });
   },
@@ -70,5 +79,13 @@ export const albumController = {
   async delete(request: Request, response: Response): Promise<void> {
     await albumService.delete(getAlbumId(request), getActor(request));
     response.status(204).send();
+  },
+  async moderate(request: Request, response: Response): Promise<void> {
+    const album = await albumService.moderate(
+      getAlbumId(request),
+      request.body as ModerationInput,
+      getActor(request),
+    );
+    response.json({ album });
   },
 };

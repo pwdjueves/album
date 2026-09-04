@@ -31,7 +31,7 @@ export const voteController = {
 
   async getVotes(request: Request, response: Response): Promise<void> {
     const result = await voteService.getVotes(getAlbumId(request), getOptionalActor(request));
-    response.status(200).json({ votes: result.count });
+    response.status(200).json({ votes: result.count, voted: result.voted });
   },
 
   async ranking(

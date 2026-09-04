@@ -28,7 +28,7 @@ export const requireAuth: RequestHandler = async (request, _response, next) => {
   }
 
   const user = await userRepository.findById(payload.sub);
-  if (!user) {
+  if (!user || !user.isActive) {
     next(new AppError('Invalid authentication token', 401));
     return;
   }
@@ -36,6 +36,19 @@ export const requireAuth: RequestHandler = async (request, _response, next) => {
   request.auth = { userId: user.id, role: user.role };
   next();
 };
+
+export function requireRole(...roles: Array<'USER' | 'MODERATOR' | 'ADMIN'>): RequestHandler {
+  return (request, _response, next) => {
+    if (!request.auth || !roles.includes(request.auth.role)) {
+      next(new AppError('Insufficient permissions', 403));
+      return;
+    }
+
+    next();
+  };
+}
+
+export const requireModerator: RequestHandler = requireRole('MODERATOR', 'ADMIN');
 
 /** Leaves requests without credentials anonymous, but rejects malformed credentials. */
 export const optionalAuth: RequestHandler = (request, response, next) => {

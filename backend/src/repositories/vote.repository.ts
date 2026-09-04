@@ -15,25 +15,30 @@ export const voteRepository = {
     return prisma.vote.count({ where: { albumId } });
   },
 
+  hasVoted(albumId: string, userId: string): Promise<boolean> {
+    return prisma.vote.findUnique({ where: { albumId_userId: { albumId, userId } }, select: { id: true } }).then(Boolean);
+  },
+
+  findVotedAlbumIds(userId: string, albumIds: string[]): Promise<string[]> {
+    return prisma.vote.findMany({ where: { userId, albumId: { in: albumIds } }, select: { albumId: true } }).then((votes) => votes.map((vote) => vote.albumId));
+  },
+
   ranking(
     userId: string | undefined,
     skip: number,
     take: number,
     filters: { title?: string; categoryId?: string },
   ) {
-    return prisma.vote.groupBy({
-      by: ['albumId'],
+    return prisma.album.findMany({
       where: {
-        album: {
-          AND: [
-            visibleAlbumWhere(userId),
-            filters.title ? { title: { contains: filters.title } } : {},
-            filters.categoryId ? { categoryId: filters.categoryId } : {},
-          ],
-        },
+        AND: [
+          visibleAlbumWhere(userId),
+          filters.title ? { title: { contains: filters.title } } : {},
+          filters.categoryId ? { categoryId: filters.categoryId } : {},
+        ],
       },
-      _count: { albumId: true },
-      orderBy: [{ _count: { albumId: 'desc' } }, { albumId: 'asc' }],
+      select: { id: true, _count: { select: { votes: true } } },
+      orderBy: [{ votes: { _count: 'desc' } }, { createdAt: 'desc' }, { id: 'asc' }],
       skip,
       take,
     });

@@ -1,4 +1,5 @@
 import 'dotenv/config';
+import path from 'node:path';
 
 function parsePort(value: string | undefined): number {
   if (value === undefined) {
@@ -39,4 +40,7 @@ export const env = {
   cloudinaryApiKey: process.env.CLOUDINARY_API_KEY,
   cloudinaryApiSecret: process.env.CLOUDINARY_API_SECRET,
   cloudinaryUploadPreset: process.env.CLOUDINARY_UPLOAD_PRESET,
+  storageProvider: process.env.STORAGE_PROVIDER ?? 'local',
+  uploadDir: path.resolve(process.env.UPLOAD_DIR ?? 'uploads'),
+  publicBaseUrl: (process.env.PUBLIC_BASE_URL ?? `http://localhost:${parsePort(process.env.PORT)}`).replace(/\/$/, ''),
 } as const;

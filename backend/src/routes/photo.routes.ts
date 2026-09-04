@@ -5,3 +5,4 @@ import { photoUpload, validatePhotoCompletion } from '../middleware/photo-upload
 export const photoRouter = Router({ mergeParams: true });
 
 photoRouter.post('/', photoUpload.single('file'), validatePhotoCompletion, photoController.complete);
+photoRouter.delete('/', photoController.remove);

@@ -30,9 +30,12 @@ export const voteService = {
     await voteRepository.remove(albumId, actor.userId);
   },
 
-  async getVotes(albumId: string, actor: AuthorizationActor | null): Promise<{ count: number }> {
+  async getVotes(albumId: string, actor: AuthorizationActor | null): Promise<{ count: number; voted: boolean }> {
     await assertCanView(albumId, actor);
-    return { count: await voteRepository.countByAlbum(albumId) };
+    return {
+      count: await voteRepository.countByAlbum(albumId),
+      voted: actor ? await voteRepository.hasVoted(albumId, actor.userId) : false,
+    };
   },
 
   async ranking(actor: AuthorizationActor | null, query: RankingQuery) {
@@ -40,13 +43,14 @@ export const voteService = {
     const rows = await voteRepository.ranking(actor?.userId, skip, query.limit + 1, query);
     const hasNextPage = rows.length > query.limit;
     const pageRows = hasNextPage ? rows.slice(0, query.limit) : rows;
-    const albums = await albumRepository.findByIds(pageRows.map((row) => row.albumId));
+    const albums = await albumRepository.findByIds(pageRows.map((row) => row.id));
+    const votedIds = actor ? new Set(await voteRepository.findVotedAlbumIds(actor.userId, pageRows.map((row) => row.id))) : new Set<string>();
     const albumById = new Map(albums.map((album) => [album.id, album]));
 
     return {
       items: pageRows.flatMap((row) => {
-        const album = albumById.get(row.albumId);
-        return album ? [{ album, voteCount: row._count.albumId }] : [];
+        const album = albumById.get(row.id);
+        return album ? [{ album, voteCount: row._count.votes, voted: votedIds.has(row.id) }] : [];
       }),
       page: query.page,
       limit: query.limit,

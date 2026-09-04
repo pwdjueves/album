@@ -56,7 +56,11 @@ Copy-Item frontend\.env.example frontend\.env
 - `JWT_SECRET`: secreto local. Sustituirlo por un secreto gestionado y largo
   en cualquier entorno compartido o productivo.
 - `JWT_EXPIRES_IN`: duracion de los tokens.
-- `CLOUDINARY_*`: opcionales para integrar almacenamiento de imagenes.
+- `STORAGE_PROVIDER`: `local` (predeterminado para desarrollo) o `cloudinary`.
+- `UPLOAD_DIR`: carpeta local de subidas (`uploads` por defecto).
+- `PUBLIC_BASE_URL`: URL pública del backend usada para construir las URLs locales
+  (`http://localhost:3000` por defecto).
+- `CLOUDINARY_*`: necesarios sólo cuando `STORAGE_PROVIDER=cloudinary`.
 
 No publicar `.env` ni reutilizar el secreto local fuera de desarrollo.
 
@@ -84,8 +88,28 @@ cd backend
 npx prisma migrate deploy
 ```
 
-No hay script de seed definido en el proyecto; no se ejecuta ningun seed
-automaticamente.
+Las imágenes subidas en desarrollo se guardan en `backend/uploads/`, se sirven
+desde `/uploads` y aceptan únicamente JPEG, PNG o WebP de hasta 5 MB. La carpeta
+debe permanecer fuera del control de versiones.
+
+## Moderación
+
+`MODERATOR` y `ADMIN` pueden activar o inactivar álbumes y borrar fotos de sus
+consignas. `ADMIN` además puede gestionar usuarios desde `/admin/users`:
+cambiar roles, activar/desactivar cuentas o eliminarlas cuando no tengan
+contenido propietario restringido. Las cuentas desactivadas no pueden iniciar
+sesión ni usar tokens existentes.
+
+El seed idempotente crea usuarios, categorías y los álbumes de ejemplo:
+
+```powershell
+cd backend
+npm run prisma:seed
+```
+
+Credenciales de desarrollo del seed (no usar en producción): `admin@album.local`,
+`creator@album.local` y `collaborator@album.local`, todos con contraseña
+`AlbumDev123!`. El seed usa `upsert`, por lo que puede ejecutarse varias veces.
 
 ## Ejecucion
 

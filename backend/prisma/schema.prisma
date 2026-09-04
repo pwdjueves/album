@@ -49,6 +49,7 @@ model User {
   email              String              @unique @db.VarChar(191)
   passwordHash       String              @db.VarChar(255)
   role               UserRole            @default(USER)
+  isActive           Boolean             @default(true)
   createdAt          DateTime            @default(now())
   updatedAt          DateTime            @updatedAt
   createdAlbums      Album[]             @relation("AlbumCreator")
@@ -142,6 +143,7 @@ model GroupMember {
 model Page {
   id         String      @id @default(cuid())
   albumId    String
+  title      String      @db.VarChar(200)
   pageNumber Int
   createdAt  DateTime    @default(now())
   updatedAt  DateTime    @updatedAt

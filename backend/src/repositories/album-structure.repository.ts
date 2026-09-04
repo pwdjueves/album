@@ -20,7 +20,7 @@ export const albumStructureRepository = {
       });
 
       return transaction.page.create({
-        data: { albumId, pageNumber: (lastPage?.pageNumber ?? 0) + 1 },
+        data: { albumId, title: `Página ${(lastPage?.pageNumber ?? 0) + 1}`, pageNumber: (lastPage?.pageNumber ?? 0) + 1 },
       });
     });
   },

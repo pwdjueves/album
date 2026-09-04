@@ -19,6 +19,7 @@ import { hasExpectedImageSignature } from '../dist/middleware/photo-upload.middl
 import { validateQuery } from '../dist/middleware/validate-query.middleware.js';
 import { externalPhotoSchema } from '../dist/validators/photo.validator.js';
 import { rankingQuerySchema } from '../dist/validators/vote.validator.js';
+import { updateUserSchema } from '../dist/validators/admin.validator.js';
 
 function context(overrides = {}) {
   return {
@@ -57,9 +58,9 @@ function assertPermissions(privacy, actor, expected) {
 test('PRIVATE permits only its creator', () => {
   for (const [name, actor] of Object.entries(actors)) {
     assertPermissions(AlbumPrivacy.PRIVATE, actor, {
-      view: name === 'creator',
+      view: name === 'creator' || name === 'moderator' || name === 'admin',
       complete: name === 'creator',
-      edit: name === 'creator',
+      edit: name === 'creator' || name === 'moderator' || name === 'admin',
     });
   }
 });
@@ -69,7 +70,7 @@ test('PUBLIC permits visitors to view and registered users to complete', () => {
     assertPermissions(AlbumPrivacy.PUBLIC, actor, {
       view: true,
       complete: name !== 'visitor',
-      edit: name === 'creator' || name === 'collaborator',
+      edit: name === 'creator' || name === 'collaborator' || name === 'moderator' || name === 'admin',
     });
   }
 });
@@ -77,9 +78,9 @@ test('PUBLIC permits visitors to view and registered users to complete', () => {
 test('GROUP permits only group members, with team members editing structure', () => {
   for (const [name, actor] of Object.entries(actors)) {
     assertPermissions(AlbumPrivacy.GROUP, actor, {
-      view: name === 'groupMember',
+      view: name === 'groupMember' || name === 'moderator' || name === 'admin',
       complete: name === 'groupMember',
-      edit: false,
+      edit: name === 'moderator' || name === 'admin',
     });
   }
 
@@ -103,6 +104,15 @@ test('GROUP permits only group members, with team members editing structure', ()
 test('inactive albums cannot be completed and moderation remains role-based', () => {
   assert.equal(canCompleteAlbum(context({ privacy: AlbumPrivacy.PUBLIC, isAuthenticated: true, status: AlbumStatus.INACTIVE })), false);
   assert.equal(canModerate({ userId: 'moderator', role: 'MODERATOR' }), true);
+  assert.equal(canModerate({ userId: 'admin', role: 'ADMIN' }), true);
+  assert.equal(canModerate({ userId: 'user', role: 'USER' }), false);
+});
+
+test('admin user updates require supported fields', () => {
+  assert.equal(updateUserSchema.safeParse({ role: 'MODERATOR' }).success, true);
+  assert.equal(updateUserSchema.safeParse({ isActive: false }).success, true);
+  assert.equal(updateUserSchema.safeParse({ role: 'OWNER' }).success, false);
+  assert.equal(updateUserSchema.safeParse({}).success, false);
 });
 
 test('album validation rejects a client-provided creator and incomplete group albums', () => {

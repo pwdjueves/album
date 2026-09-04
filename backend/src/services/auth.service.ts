@@ -4,7 +4,7 @@ import { Prisma, type User } from '@prisma/client';
 import { env } from '../config/env.js';
 import { userRepository } from '../repositories/user.repository.js';
 import { AppError } from '../utils/app-error.js';
-import type { LoginInput, RegisterInput } from '../validators/auth.validator.js';
+import type { ChangePasswordInput, LoginInput, RegisterInput, UpdateProfileInput } from '../validators/auth.validator.js';
 
 type PublicUser = Omit<User, 'passwordHash'>;
 
@@ -55,7 +55,7 @@ export const authService = {
 
   async login(input: LoginInput): Promise<AuthResult> {
     const user = await userRepository.findByEmail(input.email);
-    if (!user || !(await argon2.verify(user.passwordHash, input.password))) {
+    if (!user || !user.isActive || !(await argon2.verify(user.passwordHash, input.password))) {
       throw new AppError('Invalid email or password', 401);
     }
 
@@ -69,5 +69,19 @@ export const authService = {
     }
 
     return toPublicUser(user);
+  },
+
+  async updateProfile(userId: string, input: UpdateProfileInput): Promise<PublicUser> {
+    return toPublicUser(await userRepository.update(userId, input));
+  },
+
+  async changePassword(userId: string, input: ChangePasswordInput): Promise<void> {
+    const user = await userRepository.findById(userId);
+    if (!user || !(await argon2.verify(user.passwordHash, input.currentPassword))) {
+      throw new AppError('Current password is invalid', 400);
+    }
+    await userRepository.update(userId, {
+      passwordHash: await argon2.hash(input.password, { type: argon2.argon2id }),
+    });
   },
 };

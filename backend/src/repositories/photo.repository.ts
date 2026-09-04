@@ -37,4 +37,13 @@ export const photoRepository = {
       return photo;
     });
   },
+
+  async removeFromSlot(albumId: string, pageId: string, slotId: string): Promise<void> {
+    await prisma.$transaction(async (transaction) => {
+      const slot = await transaction.photoSlot.findFirst({ where: { id: slotId, pageId, page: { albumId } }, select: { id: true } });
+      if (!slot) throw new Error('SLOT_NOT_FOUND');
+      await transaction.photo.deleteMany({ where: { photoSlotId: slotId } });
+      await transaction.photoSlot.update({ where: { id: slotId }, data: { status: PhotoSlotStatus.EMPTY } });
+    });
+  },
 };

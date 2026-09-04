@@ -57,6 +57,7 @@ export function belongsToAlbumGroup(context: AlbumAuthorizationContext): boolean
 }
 
 export function canViewAlbum(context: AlbumAuthorizationContext): boolean {
+  if (context.isModerator || context.isAdministrator) return true;
   if (context.privacy === AlbumPrivacy.PRIVATE) return context.isCreator;
   if (context.privacy === AlbumPrivacy.PUBLIC) return true;
   return context.isGroupMember;
@@ -70,20 +71,25 @@ export function canCompleteAlbum(context: AlbumAuthorizationContext): boolean {
 }
 
 export function canEditAlbumStructure(context: AlbumAuthorizationContext): boolean {
-  return canManageAlbumStructure(context);
+  return context.isModerator || canManageAlbumStructure(context);
 }
 
 /** Structural edits inside an album are intentionally limited to its team. */
 export function canManageAlbumStructure(context: AlbumAuthorizationContext): boolean {
+  if (context.isModerator || context.isAdministrator) return true;
   if (context.privacy === AlbumPrivacy.PRIVATE) return context.isCreator;
   if (context.privacy === AlbumPrivacy.PUBLIC) return context.isCreator || context.isCollaborator;
   return context.isGroupMember && (context.isCreator || context.isCollaborator);
 }
 
 export function canDeleteAlbum(context: AlbumAuthorizationContext): boolean {
-  return context.isCreator && (context.privacy !== AlbumPrivacy.GROUP || context.isGroupMember);
+  return context.isModerator || context.isCreator && (context.privacy !== AlbumPrivacy.GROUP || context.isGroupMember);
 }
 
 export function canModerate(actor: AuthorizationActor): boolean {
   return actor.role === 'MODERATOR' || actor.role === 'ADMIN';
+}
+
+export function canManageUsers(actor: AuthorizationActor): boolean {
+  return actor.role === 'ADMIN';
 }

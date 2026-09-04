@@ -7,12 +7,14 @@ import {
 import {
   canEditAlbumStructure,
   canDeleteAlbum,
+  canModerate,
   canViewAlbum,
   getAlbumAuthorizationContext,
   type AuthorizationActor,
 } from './authorization.service.js';
 import { AppError } from '../utils/app-error.js';
 import type { CreateAlbumInput, UpdateAlbumInput } from '../validators/album.validator.js';
+import type { ModerationInput } from '../validators/album.validator.js';
 
 async function assertCategoryExists(categoryId: string): Promise<void> {
   if (!(await albumRepository.categoryExists(categoryId))) {
@@ -45,11 +47,37 @@ export const albumService = {
       await assertGroupMembership(input.groupId!, actor.userId);
     }
 
-    return albumRepository.create({ ...input, creatorId: actor.userId });
+    const { structure, ...albumData } = input;
+    return albumRepository.create({
+      title: albumData.title,
+      description: albumData.description,
+      privacy: albumData.privacy,
+      status: albumData.status,
+      category: { connect: { id: albumData.categoryId } },
+      creator: { connect: { id: actor.userId } },
+      ...(albumData.groupId ? { group: { connect: { id: albumData.groupId } } } : {}),
+      ...(structure ? {
+        pages: {
+          create: structure.pages.map((page, pageIndex) => ({
+            title: page.title,
+            pageNumber: pageIndex + 1,
+            photoSlots: { create: page.slots.map((slot, slotIndex) => ({ prompt: slot.prompt, position: slotIndex + 1 })) },
+          })),
+        },
+      } : {}),
+    });
   },
 
   async list(actor: AuthorizationActor | null): Promise<PublicAlbum[]> {
     return albumRepository.findVisibleTo(actor?.userId);
+  },
+
+  async listCreated(userId: string): Promise<PublicAlbum[]> {
+    return albumRepository.findCreatedBy(userId);
+  },
+
+  async listCollaborated(userId: string): Promise<PublicAlbum[]> {
+    return albumRepository.findCollaboratedBy(userId);
   },
 
   async getById(id: string, actor: AuthorizationActor | null): Promise<PublicAlbumWithStructure> {
@@ -90,12 +118,24 @@ export const albumService = {
       await assertGroupMembership(groupId, actor.userId);
     }
 
-    const data: Prisma.AlbumUncheckedUpdateInput = { ...input };
+    const { structure, ...albumFields } = input;
+    const data: Prisma.AlbumUncheckedUpdateInput = { ...albumFields };
     if (input.privacy !== undefined && input.privacy !== AlbumPrivacy.GROUP && input.groupId === undefined) {
       data.groupId = null;
     }
 
-    return albumRepository.update(id, data);
+    const album = await albumRepository.update(id, data);
+    if (structure) {
+      try {
+        await albumRepository.replaceStructure(id, structure.pages);
+      } catch (error) {
+        if (error instanceof Error && (error.message === 'INVALID_PAGE_ID' || error.message === 'INVALID_SLOT_ID')) {
+          throw new AppError('The album structure contains an invalid page or slot', 400);
+        }
+        throw error;
+      }
+    }
+    return album;
   },
 
   async delete(id: string, actor: AuthorizationActor): Promise<void> {
@@ -105,5 +145,12 @@ export const albumService = {
       throw new AppError('You do not have permission to delete this album', 403);
     }
     await albumRepository.delete(id);
+  },
+
+  async moderate(id: string, input: ModerationInput, actor: AuthorizationActor): Promise<PublicAlbum> {
+    if (!canModerate(actor)) throw new AppError('Moderation role required', 403);
+    const album = await albumRepository.findById(id);
+    if (!album) throw new AppError('Album not found', 404);
+    return albumRepository.update(id, { status: input.status });
   },
 };

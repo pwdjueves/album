@@ -22,4 +22,7 @@ export const photoService = {
     });
     return response.photo;
   },
+  async remove(albumId: string, pageId: string, slotId: string): Promise<void> {
+    await request<void>(`/albums/${albumId}/pages/${pageId}/slots/${slotId}/photo`, { method: 'DELETE' });
+  },
 };

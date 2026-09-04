@@ -7,10 +7,11 @@ type Props = {
   pageId: string;
   slot: PhotoSlotModel;
   canComplete: boolean;
+  canModerate: boolean;
   onCompleted: (slotId: string, photo: PhotoSlotModel['photo']) => void;
 };
 
-export function PhotoSlot({ albumId, pageId, slot, canComplete, onCompleted }: Props) {
+export function PhotoSlot({ albumId, pageId, slot, canComplete, canModerate, onCompleted }: Props) {
   const [imageUrl, setImageUrl] = useState('');
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string>();
@@ -42,6 +43,19 @@ export function PhotoSlot({ albumId, pageId, slot, canComplete, onCompleted }: P
     }
   }
 
+  async function removePhoto() {
+    setBusy(true);
+    setError(undefined);
+    try {
+      await photoService.remove(albumId, pageId, slot.id);
+      onCompleted(slot.id, null);
+    } catch (reason) {
+      setError(reason instanceof Error ? reason.message : 'No se pudo borrar la foto.');
+    } finally {
+      setBusy(false);
+    }
+  }
+
   return (
     <div className={`photo-slot ${slot.photo ? 'photo-slot--filled' : ''}`}>
       <p className="photo-slot__prompt">{slot.prompt}</p>
@@ -50,6 +64,7 @@ export function PhotoSlot({ albumId, pageId, slot, canComplete, onCompleted }: P
       ) : (
         <p className="photo-slot__empty">Espacio disponible</p>
       )}
+      {canModerate && slot.photo && <button className="button danger small" type="button" disabled={busy} onClick={() => void removePhoto()}>Borrar foto</button>}
       {canComplete && !slot.photo && (
         <div className="photo-slot__controls">
           <label className="button small">

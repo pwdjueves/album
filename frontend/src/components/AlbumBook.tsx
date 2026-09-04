@@ -3,12 +3,12 @@ import type { Album, PhotoSlot } from '../types/album';
 import { useAlbumNavigation } from '../hooks/useAlbumNavigation';
 import { PhotoSlot as PhotoSlotView } from './PhotoSlot';
 
-export function AlbumBook({ album, canComplete }: { album: Album; canComplete: boolean }) {
+export function AlbumBook({ album, canComplete, canModerate = false }: { album: Album; canComplete: boolean; canModerate?: boolean }) {
   const [pages, setPages] = useState(album.pages ?? []);
   const navigation = useAlbumNavigation(pages);
   function updateSlot(pageId: string, slotId: string, photo: PhotoSlot['photo']) {
     setPages((items) => items.map((page) => page.id === pageId
-      ? { ...page, photoSlots: page.photoSlots.map((slot) => slot.id === slotId ? { ...slot, photo, status: 'COMPLETED' } : slot) }
+      ? { ...page, photoSlots: page.photoSlots.map((slot) => slot.id === slotId ? { ...slot, photo, status: photo ? 'COMPLETED' : 'EMPTY' } : slot) }
       : page));
   }
 
@@ -22,9 +22,9 @@ export function AlbumBook({ album, canComplete }: { album: Album; canComplete: b
       <div className="album-book">
         {navigation.currentPages.map((page) => (
           <article className="book-page" key={page.id}>
-            <h2>Página {page.pageNumber}</h2>
+            <h2>{page.title || `Página ${page.pageNumber}`}</h2>
             <div className="book-page__slots">
-              {page.photoSlots.map((slot) => <PhotoSlotView key={slot.id} albumId={album.id} pageId={page.id} slot={slot} canComplete={canComplete} onCompleted={(slotId, photo) => updateSlot(page.id, slotId, photo)} />)}
+              {page.photoSlots.map((slot) => <PhotoSlotView key={slot.id} albumId={album.id} pageId={page.id} slot={slot} canComplete={canComplete} canModerate={canModerate} onCompleted={(slotId, photo) => updateSlot(page.id, slotId, photo)} />)}
             </div>
           </article>
         ))}
