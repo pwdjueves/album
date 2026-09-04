@@ -1,0 +1,810 @@
+PROMPT 1
+Actúa como un Desarrollador Full-Stack Senior y Arquitecto de Software.
+
+ Tu objetivo es guiarme paso a paso en la construcción desde cero de una aplicación web completa para un sistema de Álbumes de Fotos Digitales Interactivos.
+
+
+
+ Lee detenidamente las siguientes especificaciones del proyecto y los requisitos de trabajo. 
+
+
+
+--- ### 1. CONCEPTO GENERAL DEL PROYECTO
+
+ La aplicación es una plataforma web interactiva donde los usuarios pueden crear, ver, compartir y completar álbumes de fotos con un formato visual de "libro físico abierto". A diferencia de una galería tradicional, en estos álbumes el creador del álbum define la cantidad de páginas y los espacios vacíos disponibles en cada página. Cada espacio contiene una consigna o descripción textual (por ejemplo: "Foto de un río en las montañas"). Los usuarios que ingresan al álbum deben buscar en su galería o en internet una imagen que cumpla con esa consigna para subirla y "pegarla" en ese espacio del álbum. --- ### 2. CARACTERÍSTICAS DEL ÁLBUM
+
+ Cada álbum cuenta con los siguientes atributos: 
+
+- Datos básicos: Título, descripción, categoría, creador, fecha de creación.
+
+ - Estructura física: Cantidad de hojas/páginas y cantidad definida de espacios para fotos por hoja.
+
+- Estado: Activo o Inactivo.
+
+ - Ranking y Votos: Sistema de "upvotes" donde los usuarios pueden votar un álbum. Los álbumes más votados aparecerán primero en el ranking principal. - Roles sobre el álbum:
+
+ - Creador: Dueño del álbum. 
+
+- Colaboradores: Usuarios con permiso explícito del creador para editar la estructura del álbum.
+
+ - Usuarios participantes: Usuarios con permiso para subir fotos en los espacios vacíos.
+
+ - Tipos de Privacidad (3 niveles): 1. Privado: Solo el creador puede verlo, editarlo y completarlo. 2. Público: Cualquier persona registrada o visitante puede verlo y cualquier usuario registrado puede completarlo (nadie excepto el creador/colaboradores puede editar su estructura). 3. Grupo: Solo los miembros autorizados de un grupo específico pueden ver y completar el álbum. 
+
+--- ### 3. ROLES DE USUARIO Y PERMISOS El sistema contará con 4 roles de usuario a nivel global: 1. Visitante (No registrado): Solo puede visualizar la pantalla principal, buscar álbumes, ver el ranking y hojear álbumes públicos. No puede votar, crear ni subir fotos. 2. Usuario Registrado: Puede crear álbumes propios, votar álbumes, completar espacios en álbumes públicos o de su grupo, y editar álbumes ajenos ÚNICAMENTE si fue añadido como colaborador. 3. Moderador: Puede gestionar, deshabilitar o moderar cualquier álbum de la plataforma y sus fotos subidas. 4. Administrador (Admin): Control total del sistema (gestión completa de usuarios, cambio de roles, categorías y moderación general).
+
+ --- ### 4. INTERFAZ Y EXPERIENCIA DE USUARIO (UI/UX)
+
+ - Vista Principal (Home): - Navbar Superior: Centrado dirá "Álbumes de fotos". A la derecha mostrará el avatar del usuario con sus iniciales (derivadas de su Nombre y Apellido) si inició sesión, o los botones de Login/Registro si es visitante. Desde el avatar se accede al Perfil para actualizar datos personales (excepto campos sensibles de identificación) y cerrar sesión. - Sidebar Izquierda: Barra de búsqueda predictiva para filtrar álbumes por título/similitud y menú desplegable para filtrar por Categorías.
+
+ - Centro de la Pantalla: Ranking principal de los álbumes más votados ordenados de mayor a menor cantidad de votos. Cada tarjeta de álbum mostrará: título, descripción, categoría y total de votos. - Vista Interna del Álbum (El Libro): - Formato visual de un libro o álbum físico abierto con dos páginas visibles. - Cada espacio para foto muestra la consigna o descripción requerida. - Al hacer clic en un espacio vacío, si el usuario tiene permiso, podrá subir o adjuntar la URL de una foto para rellenar la consigna.
+
+ --- ### 5. REGISTRO Y SEGURIDAD / MODERACIÓN 
+
+- Datos de registro de usuario: Nombre, Apellido, Fecha de Nacimiento, Email/Gmail y Contraseña (con hash seguro). - Moderación de Contenido: El sistema debe prohibir la creación de álbumes o subida de contenido explícito o inapropiado. Se aplicará un filtro de palabras prohibidas para los textos y se prevé integración con APIs de moderación visual para las imágenes. --- ### 6. STACK TECNOLÓGICO Y ARQUITECTURA - Backend: Node.js con Express. - Base de Datos: MySQL (Relacional, aplicando Normalización para manejar álbumes, páginas, espacios, fotos, usuarios y permisos). - Almacenamiento de Archivos: Guardado de imágenes en la nube (Cloudinary o AWS S3), almacenando únicamente las URLs en MySQL. - Frontend: Por definir en los primeros pasos (HTML/CSS/JS Vanilla o un Framework como React/Vue según lo que acordemos). 
+
+
+
+NO me des el proyecto completo de una sola vez.
+
+PROMPT 2
+Analiza el repositorio actual antes de modificar cualquier archivo.
+
+Quiero una auditoría inicial del proyecto.
+
+Revisa:
+
+* estructura de carpetas
+* package.json
+* configuración TypeScript
+* configuración de Vite
+* configuración de Express
+* Prisma
+* variables de entorno existentes
+* .gitignore
+* scripts npm
+* dependencias instaladas
+* configuración de Git
+
+No modifiques nada todavía.
+
+Al finalizar, dame:
+
+1. Estado actual del proyecto.
+2. Qué está correctamente configurado.
+3. Qué falta.
+4. Qué problemas técnicos detectaste.
+5. Qué debería corregirse primero.
+6. Una propuesta de próximos pasos en orden.
+
+No ejecutes cambios destructivos.
+
+PROMPT 3
+Implementa únicamente la estructura inicial del proyecto.
+
+Objetivo:
+
+photo-albums/
+├── frontend/
+├── backend/
+├── .gitignore
+├── .nvmrc
+└── README.md
+
+Backend:
+
+* Node.js
+* Express
+* TypeScript
+
+Frontend:
+
+* React
+* Vite
+* TypeScript
+
+Configura únicamente lo necesario para que ambos proyectos puedan iniciarse correctamente.
+
+Crea scripts npm apropiados para desarrollo.
+
+No implementes:
+
+* autenticación
+* base de datos
+* álbumes
+* usuarios
+* rutas de negocio
+* Prisma
+* Cloudinary
+
+Al terminar:
+
+1. ejecuta las instalaciones necesarias;
+2. verifica que frontend compile;
+3. verifica que backend compile/inicie;
+4. muestra los comandos utilizados;
+5. lista los archivos creados o modificados;
+6. informa cualquier problema.
+
+
+PROMPT 4
+Configura Prisma para utilizar MySQL en el backend.
+
+Objetivo de esta etapa:
+
+backend/
+└── prisma/
+└── schema.prisma
+
+Necesito:
+
+* instalación de Prisma;
+* Prisma Client;
+* configuración para MySQL;
+* DATABASE_URL mediante variable de entorno;
+* generación del Prisma Client.
+
+Todavía NO diseñes todas las entidades del sistema.
+
+Por ahora solo deja Prisma correctamente conectado y preparado.
+
+Crea o actualiza:
+
+* prisma/schema.prisma
+* .env.example
+* configuración necesaria del backend
+
+No inventes modelos todavía.
+
+Después verifica:
+
+* prisma generate
+* conexión/configuración
+* compilación del backend
+
+Informa claramente cualquier supuesto realizado.
+
+
+PROMPT 5
+Ahora vamos a diseñar e implementar el modelo relacional inicial del sistema.
+
+Antes de escribir Prisma:
+
+1. analiza las relaciones;
+2. verifica normalización;
+3. identifica claves primarias;
+4. identifica claves foráneas;
+5. identifica relaciones 1:N y N:M;
+6. identifica restricciones UNIQUE;
+7. identifica índices necesarios.
+
+Después implementa el schema Prisma.
+
+Entidades iniciales:
+
+User
+Category
+Album
+AlbumCollaborator
+AlbumMember
+Group
+GroupMember
+Page
+PhotoSlot
+Photo
+Vote
+
+Requisitos:
+
+USER:
+
+* id
+* firstName
+* lastName
+* birthDate
+* email
+* passwordHash
+* role
+* createdAt
+* updatedAt
+
+Role:
+USER
+MODERATOR
+ADMIN
+
+Album:
+
+* id
+* title
+* description
+* category
+* creator
+* privacy
+* status
+* createdAt
+* updatedAt
+
+Privacy:
+PRIVATE
+PUBLIC
+GROUP
+
+Album status:
+ACTIVE
+INACTIVE
+
+Page:
+
+* pertenece a un álbum
+* número/orden de página
+
+PhotoSlot:
+
+* pertenece a una página
+* consigna
+* posición
+* estado
+
+Photo:
+
+* pertenece a un PhotoSlot
+* usuario que la subió
+* URL
+* source type
+* moderation status
+* timestamps
+
+Vote:
+
+* album
+* user
+* createdAt
+* UNIQUE(album_id, user_id)
+
+Collaborators:
+
+* relación entre usuario y álbum
+
+Groups:
+
+* grupo
+* miembros
+
+IMPORTANTE:
+
+No guardes el rol contextual del álbum dentro de User.
+
+No almacenes las imágenes como BLOB en MySQL.
+
+Usa relaciones e índices apropiados.
+
+Antes de ejecutar la migración, muéstrame un resumen del diseño que implementaste.
+
+Después:
+
+* ejecuta prisma format;
+* ejecuta prisma generate;
+* crea la migración inicial;
+* verifica que el schema sea válido.
+
+No construyas todavía la API CRUD.
+
+
+PROMPT 6
+Construye la base arquitectónica del backend Express sin implementar todavía toda la lógica de negocio.
+
+Necesito:
+
+src/
+├── config/
+├── controllers/
+├── middleware/
+├── routes/
+├── services/
+├── repositories/
+├── validators/
+├── utils/
+└── app.ts / server.ts
+
+Configura:
+
+* Express
+* TypeScript
+* Helmet
+* CORS
+* manejo centralizado de errores
+* middleware 404
+* health check
+* configuración mediante environment variables
+
+Crear endpoint:
+
+GET /api/health
+
+Debe devolver una respuesta JSON indicando que la API está funcionando.
+
+Todavía NO implementar:
+
+* login
+* registro
+* álbumes
+* votos
+* uploads
+* moderación
+
+Quiero primero una arquitectura limpia y extensible.
+
+Verifica que:
+
+* compile;
+* arranque;
+* GET /api/health funcione.
+
+
+PROMPT 7
+Implementa únicamente el sistema inicial de autenticación.
+
+Funcionalidades:
+
+POST /api/auth/register
+POST /api/auth/login
+GET /api/auth/me
+
+Registro:
+
+* firstName
+* lastName
+* birthDate
+* email
+* password
+
+Requisitos:
+
+* validar inputs;
+* normalizar email;
+* impedir emails duplicados;
+* hashear contraseña con Argon2;
+* nunca devolver passwordHash;
+* JWT;
+* middleware de autenticación;
+* respuestas HTTP coherentes;
+* manejo centralizado de errores.
+
+Implementa:
+
+* auth controller
+* auth service
+* auth repository si corresponde
+* validators
+* auth middleware
+* rutas
+
+No implementar todavía:
+
+* recuperación de contraseña
+* Google login
+* refresh tokens
+* verificación por email
+
+Antes de terminar prueba:
+
+* registro correcto;
+* email duplicado;
+* login correcto;
+* contraseña incorrecta;
+* GET /me sin token;
+* GET /me con token válido.
+
+No modifiques funcionalidades no relacionadas.
+
+
+PROMPT 8
+Implementa el sistema de autorización global.
+
+Roles:
+
+USER
+MODERATOR
+ADMIN
+
+Crear middleware reutilizable para autorización por rol.
+
+Ejemplo conceptual:
+
+requireRole('ADMIN')
+
+También necesito funciones reutilizables para permisos contextuales sobre álbumes.
+
+IMPORTANTE:
+
+La autorización debe existir en backend.
+
+No depender del frontend para impedir acciones.
+
+Implementar helpers para determinar:
+
+* si es creador;
+* si es colaborador;
+* si pertenece al grupo;
+* si puede visualizar álbum;
+* si puede completar álbum;
+* si puede editar estructura;
+* si puede moderar;
+* si es administrador.
+
+No implementes todavía endpoints completos de álbumes.
+
+Quiero únicamente la infraestructura de autorización.
+
+PROMPT 9
+Implementa el módulo de álbumes.
+
+Crear:
+
+AlbumController
+AlbumService
+AlbumRepository
+AlbumValidators
+AlbumRoutes
+
+Endpoints mínimos:
+
+POST /api/albums
+GET /api/albums
+GET /api/albums/:id
+PATCH /api/albums/:id
+DELETE /api/albums/:id
+
+Requisitos:
+
+* solo usuarios registrados pueden crear;
+* el creador queda asociado al álbum;
+* validar title;
+* validar description;
+* validar category;
+* validar privacy;
+* validar status;
+* creator no debe poder cambiarse arbitrariamente;
+* aplicar permisos correctamente;
+* no permitir edición de estructura a usuarios no autorizados.
+
+GET /api/albums/:id debe respetar privacidad.
+
+Implementar inicialmente:
+
+PRIVATE
+PUBLIC
+GROUP
+
+Para GROUP, si todavía falta toda la infraestructura de grupos, deja la autorización preparada sin inventar comportamiento.
+
+Escribe tests para las reglas principales.
+
+No implementar páginas ni fotos todavía.
+
+PROMPT 10
+Implementa el módulo de estructura interna del álbum.
+
+Un álbum contiene páginas.
+
+Una página contiene PhotoSlots.
+
+PhotoSlot contiene:
+
+* prompt
+* position
+* status
+
+Necesito endpoints para:
+
+crear página
+editar página
+eliminar página
+crear slot
+editar slot
+eliminar slot
+reordenar slots
+
+Solo:
+
+* creator
+* collaborators autorizados
+
+pueden modificar la estructura.
+
+Los participantes NO pueden modificar:
+
+* número de páginas
+* consignas
+* posiciones
+* estructura
+
+La respuesta de lectura debe permitir al frontend reconstruir correctamente el libro.
+
+Ejemplo:
+
+Album
+├── Page 1
+│    ├── Slot 1
+│    ├── Slot 2
+│    └── Slot 3
+└── Page 2
+├── Slot 1
+└── Slot 2
+
+Implementa validaciones para evitar posiciones inválidas o duplicadas cuando corresponda.
+
+Agrega tests.
+
+PROMPT 11
+Implementa el flujo para completar un PhotoSlot.
+
+Un usuario autorizado debe poder proporcionar:
+
+1. una imagen subida;
+2. una URL externa.
+
+Modela sourceType:
+
+UPLOAD
+URL
+
+La imagen NO debe almacenarse directamente en MySQL.
+
+Para esta etapa:
+
+* crea la abstracción de storage;
+* crea el servicio;
+* deja Cloudinary preparado;
+* implementa la metadata en MySQL.
+
+La entidad Photo debe registrar como mínimo:
+
+* slot;
+* uploadedBy;
+* imageUrl;
+* sourceType;
+* moderationStatus;
+* timestamps.
+
+Estados:
+
+PENDING
+APPROVED
+REJECTED
+REVIEW
+
+Reglas:
+
+* solo usuarios con permiso pueden completar un slot;
+* no permitir completar slots inexistentes;
+* no permitir archivos peligrosos;
+* validar URLs;
+* validar tamaño y tipo cuando exista upload.
+
+No implementes todavía la integración definitiva con la API externa de moderación.
+
+Mantén la lógica de storage desacoplada del controller.
+
+PROMPT 12Audita y completa las reglas de privacidad de álbumes.
+
+Privacidad:
+
+PRIVATE:
+
+* solo creator puede visualizar;
+* creator puede editar;
+* creator puede completar.
+
+PUBLIC:
+
+* visitantes pueden visualizar;
+* usuarios registrados pueden completar;
+* creator/collaborators pueden editar estructura.
+
+GROUP:
+
+* solo miembros autorizados pueden visualizar;
+* miembros pueden completar;
+* creator/collaborators autorizados pueden editar estructura.
+
+La autorización debe aplicarse en backend.
+
+Revisa todos los endpoints existentes y corrige cualquier bypass.
+
+Quiero tests específicos para cada combinación:
+
+visitor
+authenticated user
+creator
+collaborator
+group member
+non-member
+moderator
+admin
+
+No agregues funcionalidades nuevas fuera de privacidad/autorización.
+
+PROMPT 13
+Implementa el sistema de votaciones.
+
+Endpoint:
+
+POST /api/albums/:id/vote
+DELETE /api/albums/:id/vote
+GET /api/albums/:id/votes
+
+Reglas:
+
+* solo usuarios registrados pueden votar;
+* un usuario solo puede votar una vez por álbum;
+* impedir duplicados mediante restricción de base de datos;
+* usuario puede quitar su voto;
+* contar votos correctamente.
+
+Implementa ranking:
+
+GET /api/albums/ranking
+
+Orden:
+
+* mayor cantidad de votos primero.
+
+Resolver correctamente los empates.
+
+La consulta debe ser eficiente y preparada para paginación.
+
+No implementes todavía recomendaciones ni algoritmos de similitud.
+
+PROMPT 14
+Implementa únicamente la arquitectura base del frontend React + TypeScript.
+
+Quiero:
+
+src/
+├── components/
+├── pages/
+├── layouts/
+├── hooks/
+├── services/
+├── context/
+├── types/
+├── utils/
+└── router/
+
+Configurar:
+
+* React Router
+* layout principal
+* manejo básico de API
+* configuración de environment variables
+* página Home
+* página Login
+* página Register
+* página Album
+
+Todavía NO hagas diseño visual complejo.
+
+Prioridad:
+
+* arquitectura;
+* tipado;
+* separación;
+* rutas;
+* comunicación con API.
+
+No agregues Redux ni otra librería de estado global salvo que exista una necesidad concreta.
+
+PROMPT 15
+Implementa la Home de la aplicación.
+
+La pantalla debe contener:
+
+Navbar:
+
+* título centrado: "Álbumes de fotos"
+* visitante: Login / Registro
+* autenticado: avatar con iniciales
+
+Sidebar:
+
+* búsqueda por título;
+* filtro por categoría.
+
+Centro:
+
+* ranking de álbumes;
+* tarjetas con:
+
+  * título
+  * descripción
+  * categoría
+  * cantidad de votos
+
+Implementar estados:
+
+* loading
+* error
+* vacío
+* contenido
+
+La búsqueda debe comunicarse con la API.
+
+No implementes todavía el diseño del libro abierto.
+
+PROMPT 16
+Implementa la vista interna del álbum con una experiencia visual de libro físico abierto.
+
+Requisitos:
+
+* dos páginas visibles simultáneamente;
+* navegación anterior/siguiente;
+* indicador de página;
+* cada PhotoSlot debe mostrar:
+
+  * consigna;
+  * imagen si existe;
+  * estado vacío si no existe;
+* si el usuario tiene permiso debe poder seleccionar un slot;
+* mostrar controles de completar según permisos.
+
+IMPORTANTE:
+
+Separar:
+
+* modelo de datos;
+* lógica de navegación;
+* permisos;
+* presentación visual.
+
+No hardcodear cantidad de páginas ni slots.
+
+La interfaz debe construirse dinámicamente a partir de la respuesta del backend.
+
+Primero implementa la funcionalidad.
+Después aplica el diseño visual.
+
+No agregues animaciones complejas hasta que el flujo funcional esté funcionando.
+
+PROMPT 17
+Bien, ahora quiero que cuando toques el icono de tu perfil te de 2 opciones:
+1- Mi perfil: Te mandaria a una vista de tu perfil donde podras ver tus datos (menos tu contraseña, aunque debe haber un campo para cambiarla donde te pedira ingresar tu antigua contraseña y luego tu contraseña nueva 2 veces, esto de la contraseña 2 veces implementalo en el registro tambien para que confirmen su contraseña al registrarse), modificarlos y que pueda ver los albumes que el creo, editarlos o borrarlos, y tambien puede ver los albumes en los que esta como colaborador.
+2- Cerrar sesion: para cerrar sesion.
+
+Quiero que en la vista del Home agregues un boton para crear albumes el cual al clickearlo te mande a una vista de formulario para la creacion, siguiendo la logica que ya establecimos que debe tener cada album.
+
+Ademas, quiero que agregues registros a la base de datos:
+1 usuario creador de un album "Rock internacional"
+1 usuario creador de un album "Rock internacional" Y ADEMAS, colaborador en el album "Rock internacional"
+1 usuario admin
+Dame las credenciales de esos 3 usuarios.
+
+Crea esos 2 albumes que te nombre, "Rock internacional" y "Rock nacional".
+Que tengan 2 paginas cada uno y 5 fotos por pagina.
+
+PROMPT 18
+Los albumes que supuestamente ejecutaste no estan, si estan en privado entonces esta bien que no aparezcan pero si estan en publico revisa eso.
+Hace mas entendible la interfaz para crear un album, por ejemplo no pongas ID categoria, sino pone categoria y que sea un input para seleccionar.
+Crea muchas categorias en la base de datos, las mas usadas, por ejemplo: "Rock","Familia","Paisajes","Sociedad","Animales",etc.
+Arregla el menu desplegable del perfil, por ejemplo en lucasgoldenjack@gmail.com, el LP aparece como movido a la derecha por la flechita de tu menu desplegable, hacelo mas lindo porque medio que se rompe esa zona al desplegarlo.
+
+PROMPT 19
+En cada album falta una opcion para darle un upvote, asi el rankin de albumes puede ser mejor ya que cada album va a tener sus votos para clasificarse en el ranking.
+La foto de perfil aparece desviada, centra las iniciales en el circulo.
+En la creacion de album hace que el formulario sea mas intuitivo en la parte de creacion de paginas, ya que el metodo actual puede marear, trata de hacer un formulario que puedas agregar paginas con un titulo de la pagina y de ahi te vaya agregando mas imputs por cada consigna de foto que pones.
+En mi perfil, mejora los botones de editar y borrar en los albumes ya que no tienen estilo, y ademas hace que al editar no sea con un alert, sino que te mande a un formulario como si lo estuvieras creando y te permita de ahi agregar alguna pagina, alguna foto, sacar alguna pagina o lo que sea.
+La subida de fotos a un album por URL funciona correctamente, pero si quiero subir una foto desde mi dispositivo me dice que "image store is not configured"
+
+PROMPT 20
+Hay 2 tipos de moderadores, el moderador y el admin.
+El moderador debe poder inactivar albumes o borrar alguna foto o algo.
+El admin debe poder hacer lo mismo que el moderador, pero ademas debe tener un panel para gestionar usuarios
+
+PROMPT 21
+Tengo una idea, agrega otra seccion mas al admin como la de Usuarios, pero que sea Albumes, ahi se debe poder editar un album, borrarlo, inactivarlo y ver colaboradores.
+Y saca el boton "Inactivar album" de la vista del album, asi unificamos todo en esa vista.
+Y esa vista de "Albumes" que la tenga tambien los usuarios moderadores
+
+PROMPT 22
+Agregame un botoncito para poder intercambiar entre modo oscuro y modo claro, este modo debe aplicarse a TODA LA PAGINA EN TODAS SUS VISTAS
