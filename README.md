@@ -1,145 +1,255 @@
 # Photo Albums
 
 Aplicacion web para crear y completar albumes fotograficos colaborativos. El
-frontend ofrece la interfaz React y el backend expone una API REST con
-autenticacion, autorizacion por privacidad y persistencia en MySQL.
+frontend usa React + Vite + TypeScript y el backend usa Express + TypeScript,
+Prisma y MySQL.
 
-## Arquitectura
+## Requisitos iniciales
 
-- `frontend/`: React + Vite + TypeScript. Consume la API mediante
-  `VITE_API_BASE_URL`.
-- `backend/`: Express + TypeScript. Carga variables con `dotenv`, aplica CORS
-  y Helmet, y sirve las rutas bajo `/api`.
-- `backend/prisma/`: esquema Prisma y migracion inicial para MySQL.
+- Windows 10/11.
+- Permisos para instalar programas y escribir en la carpeta del proyecto.
+- Conexion a internet durante la instalacion.
+- Node.js 22 (el proyecto fija esta version en `.nvmrc`) y npm.
+- Git, salvo que se descargue el proyecto como ZIP.
+- MySQL 8.x local. Apache no es necesario.
 
-## Requisitos
+## Instalacion desde cero (CMD)
 
-- Node.js 22 o superior (la version del proyecto esta indicada en `.nvmrc`).
-- npm.
-- MySQL 8.x ejecutandose localmente.
+Los bloques siguientes se pueden pegar en **CMD de Windows**, no en
+PowerShell. Las partes entre `<...>` se deben adaptar.
 
-Apache no es necesario: el proyecto utiliza el servidor de desarrollo de Vite
-y Node/Express directamente.
+### 1. Instalar Node.js, Git y MySQL
 
-## Instalacion
+1. Instala Node.js 22 LTS desde <https://nodejs.org/>. El instalador incluye
+   npm. Cierra y vuelve a abrir CMD y comprueba:
 
-Desde `C:\Users\User\Desktop\album`:
+   ```cmd
+   node --version
+   npm --version
+   ```
 
-```powershell
-cd backend
-npm ci
-npx prisma generate
+   `node --version` debe mostrar `v22.x`.
 
-cd ..\frontend
-npm ci
+2. Instala Git for Windows desde <https://git-scm.com/download/win>, abre un
+   CMD nuevo y comprueba:
+
+   ```cmd
+   git --version
+   ```
+
+3. Instala MySQL Community Server 8.x desde
+   <https://dev.mysql.com/downloads/installer/>. Durante el asistente instala
+   MySQL Server, deja el puerto `3306` salvo que ya este ocupado y recuerda la
+   contraseña de `root`. Comprueba:
+
+   ```cmd
+   mysql --version
+   ```
+
+   Si `mysql` no se reconoce, usa la ruta completa de la instalacion, por
+   ejemplo `C:\Program Files\MySQL\MySQL Server 8.0\bin\mysql.exe`, o agrega
+   esa carpeta al `PATH` y abre CMD de nuevo.
+
+   **Alternativa XAMPP:** instala XAMPP desde <https://www.apachefriends.org/>
+   y pulsa **Start** en el modulo **MySQL** del panel de control. Apache no
+   hace falta. En los comandos de base de datos sustituye `mysql` por
+   `C:\xampp\mysql\bin\mysql.exe`; adapta `<CONTRASENA_ROOT>` (en algunas
+   instalaciones XAMPP `root` no tiene contraseña).
+
+### 2. Obtener el proyecto
+
+Opcion A, usando Git (adapta la URL y la ruta):
+
+```cmd
+git clone <URL_DEL_REPOSITORIO> C:\Users\User\Desktop\album
+cd /d C:\Users\User\Desktop\album
 ```
 
-Los archivos `.env` locales ya estan preparados y estan excluidos por
-`.gitignore`. Si se crea un entorno nuevo, copiar los ejemplos:
+Opcion B, si se recibio un ZIP: extraelo en
+`C:\Users\User\Desktop\album` (o en otra ruta) y adapta todos los `cd /d` de
+esta guia a esa ruta.
 
-```powershell
-Copy-Item backend\.env.example backend\.env
-Copy-Item frontend\.env.example frontend\.env
+### 3. Crear la base de datos
+
+Desde la raiz del proyecto, inicia el cliente MySQL (adapta
+`<CONTRASENA_ROOT>`):
+
+```cmd
+mysql -u root -p
 ```
 
-## Configuracion de entorno
-
-### Backend
-
-`backend/.env` contiene:
-
-- `DATABASE_URL`: URL MySQL local. El ejemplo usa el usuario de desarrollo
-  `album_dev` y no es una credencial de produccion.
-- `PORT`: puerto de Express (`3000`).
-- `CORS_ORIGIN`: origen permitido del frontend (`http://localhost:5173`).
-  Para varios origenes, separarlos por comas.
-- `JWT_SECRET`: secreto local. Sustituirlo por un secreto gestionado y largo
-  en cualquier entorno compartido o productivo.
-- `JWT_EXPIRES_IN`: duracion de los tokens.
-- `STORAGE_PROVIDER`: `local` (predeterminado para desarrollo) o `cloudinary`.
-- `UPLOAD_DIR`: carpeta local de subidas (`uploads` por defecto).
-- `PUBLIC_BASE_URL`: URL pública del backend usada para construir las URLs locales
-  (`http://localhost:3000` por defecto).
-- `CLOUDINARY_*`: necesarios sólo cuando `STORAGE_PROVIDER=cloudinary`.
-
-No publicar `.env` ni reutilizar el secreto local fuera de desarrollo.
-
-### Frontend
-
-`frontend/.env` define `VITE_API_BASE_URL`, normalmente
-`http://localhost:3000/api`. Las variables `VITE_*` se incorporan al bundle,
-por lo que nunca deben contener secretos.
-
-## Base de datos
-
-Crear la base y un usuario local en MySQL:
+En la consola que muestra `mysql>` pega este SQL. Estos son los valores
+locales usados por el `.env` de esta guia:
 
 ```sql
 CREATE DATABASE photo_albums CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 CREATE USER 'album_dev'@'localhost' IDENTIFIED BY 'album_dev_local_password';
 GRANT ALL PRIVILEGES ON photo_albums.* TO 'album_dev'@'localhost';
 FLUSH PRIVILEGES;
+EXIT;
 ```
 
-Aplicar la migracion versionada:
+Si el usuario o la contraseña se cambian, hay que reflejarlos exactamente en
+`DATABASE_URL` (codifica caracteres especiales de la contraseña como parte de
+una URL). Si la base o el usuario ya existen, no repitas `CREATE`; usa las
+credenciales existentes y ajusta `DATABASE_URL`.
 
-```powershell
-cd backend
+### 4. Crear los archivos `.env`
+
+Ejecuta desde `C:\Users\User\Desktop\album` (adapta la ruta si corresponde):
+
+```cmd
+copy backend\.env.example backend\.env
+copy frontend\.env.example frontend\.env
+notepad backend\.env
+notepad frontend\.env
+```
+
+Deja `backend\.env` con estos valores. **No publiques este archivo ni lo
+subas a Git.** `DATABASE_URL`, `PORT`, `NODE_ENV`, `CORS_ORIGIN`,
+`JWT_EXPIRES_IN`, `STORAGE_PROVIDER` y `UPLOAD_DIR` deben quedar exactamente
+asi para el desarrollo local:
+
+```dotenv
+DATABASE_URL="mysql://album_dev:album_dev_local_password@127.0.0.1:3306/photo_albums"
+PORT=3000
+NODE_ENV=development
+CORS_ORIGIN="http://localhost:5173"
+JWT_SECRET="<SECRETO_GENERADO_LOCALMENTE>"
+JWT_EXPIRES_IN="1h"
+CLOUDINARY_CLOUD_NAME=""
+CLOUDINARY_API_KEY=""
+CLOUDINARY_API_SECRET=""
+CLOUDINARY_UPLOAD_PRESET=""
+STORAGE_PROVIDER="local"
+UPLOAD_DIR="uploads"
+```
+
+Genera un secreto local con Node (no uses el texto de ejemplo), copia el
+resultado y reemplaza `<SECRETO_GENERADO_LOCALMENTE>` en `backend\.env`:
+
+```cmd
+node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"
+```
+
+`JWT_SECRET` es obligatorio. No lo compartas ni lo pongas en el frontend.
+`STORAGE_PROVIDER=local` guarda las cargas en `backend\uploads`; las variables
+`CLOUDINARY_*` solo se necesitan si se implementa un proveedor Cloudinary.
+
+Deja `frontend\.env` asi:
+
+```dotenv
+VITE_API_BASE_URL=http://localhost:3000/api
+```
+
+Las variables `VITE_*` se incorporan al navegador y nunca deben contener
+secretos.
+
+### 5. Instalar dependencias, generar Prisma, migrar y cargar datos
+
+```cmd
+cd /d C:\Users\User\Desktop\album\backend
+npm ci
+npm run prisma:generate
 npx prisma migrate deploy
-```
-
-Las imágenes subidas en desarrollo se guardan en `backend/uploads/`, se sirven
-desde `/uploads` y aceptan únicamente JPEG, PNG o WebP de hasta 5 MB. La carpeta
-debe permanecer fuera del control de versiones.
-
-## Moderación
-
-`MODERATOR` y `ADMIN` pueden activar o inactivar álbumes y borrar fotos de sus
-consignas. `ADMIN` además puede gestionar usuarios desde `/admin/users`:
-cambiar roles, activar/desactivar cuentas o eliminarlas cuando no tengan
-contenido propietario restringido. Las cuentas desactivadas no pueden iniciar
-sesión ni usar tokens existentes.
-
-El seed idempotente crea usuarios, categorías y los álbumes de ejemplo:
-
-```powershell
-cd backend
 npm run prisma:seed
+cd /d C:\Users\User\Desktop\album\frontend
+npm ci
 ```
 
-Credenciales de desarrollo del seed (no usar en producción): `admin@album.local`,
-`creator@album.local` y `collaborator@album.local`, todos con contraseña
-`AlbumDev123!`. El seed usa `upsert`, por lo que puede ejecutarse varias veces.
+`migrate deploy` aplica todas las migraciones versionadas de
+`backend\prisma\migrations`. El seed es idempotente y crea categorias, dos
+albumes de ejemplo y usuarios de desarrollo.
 
-## Ejecucion
+## Ejecutar en desarrollo
 
-En una terminal:
+Deja MySQL iniciado y abre dos ventanas de **CMD**.
 
-```powershell
-cd backend
+CMD 1 (backend):
+
+```cmd
+cd /d C:\Users\User\Desktop\album\backend
 npm run dev
 ```
 
-En otra terminal:
+CMD 2 (frontend):
 
-```powershell
-cd frontend
+```cmd
+cd /d C:\Users\User\Desktop\album\frontend
 npm run dev
 ```
 
-Abrir `http://localhost:5173`. Para una ejecucion compilada, usar
-`npm run build` y `npm start` en `backend`, y `npm run build` seguido de
-`npm run preview` en `frontend`.
+Abre <http://localhost:5173>. La API esta en
+<http://localhost:3000/api>; las imagenes locales se sirven desde
+<http://localhost:3000/uploads/>.
+
+Credenciales creadas por el seed (solo desarrollo):
+
+- `admin@album.local` / `AlbumDev123!`
+- `creator@album.local` / `AlbumDev123!`
+- `collaborator@album.local` / `AlbumDev123!`
+
+## Ejecucion compilada
+
+Backend, en una ventana CMD:
+
+```cmd
+cd /d C:\Users\User\Desktop\album\backend
+npm run build
+npm start
+```
+
+Frontend, en otra ventana CMD:
+
+```cmd
+cd /d C:\Users\User\Desktop\album\frontend
+npm run build
+npm run preview
+```
+
+Vite mostrara la URL de preview en CMD. Para desarrollo normal, usa
+`npm run dev` como se indica arriba.
+
+## Solucion de problemas
+
+- **`node`, `npm`, `git` o `mysql` no se reconoce:** instala el programa,
+  agrega su carpeta `bin` al `PATH`, cierra CMD y abre una ventana nueva.
+- **Error de conexion MySQL (`P1001`, `ECONNREFUSED`):** inicia el servicio
+  MySQL/XAMPP, verifica el puerto `3306`, el usuario y la contraseña, y
+  comprueba que `DATABASE_URL` coincida con ellos. Si se cambio el puerto,
+  actualiza tambien esa URL.
+- **`Access denied` o base inexistente:** vuelve a ejecutar el SQL con `root`,
+  confirma que `photo_albums` y `album_dev` existen y que la contraseña de
+  `DATABASE_URL` coincide. Una contraseña con `@`, `#`, `:` u otros caracteres
+  debe codificarse para URL.
+- **Puerto ocupado:** cambia `PORT` en `backend\.env` (por ejemplo `3001`),
+  cambia `VITE_API_BASE_URL` a `http://localhost:3001/api` y cambia
+  `CORS_ORIGIN` al origen real que muestre Vite (por ejemplo
+  `http://localhost:5174`). Reinicia ambas terminales.
+- **Error CORS:** `CORS_ORIGIN` debe coincidir exactamente con el origen del
+  navegador (`http://localhost:5173` o `http://127.0.0.1:5173`), sin mezclar
+  ambos valores; reinicia el backend tras editar `.env`.
+- **Imagenes o uploads no aparecen:** usa JPEG, PNG o WebP de hasta 5 MB,
+  mantén `STORAGE_PROVIDER=local` y comprueba que el backend pueda crear
+  `backend\uploads`. Las rutas locales se guardan como `/uploads/<archivo>` y
+  se resuelven contra el backend; las URLs HTTPS remotas se conservan.
+- **`Invalid authentication token`:** cierra sesion y vuelve a iniciar.
+  Si cambiaste `JWT_SECRET`, reinicia el backend y vuelve a iniciar sesion
+  para obtener un token nuevo.
+- **Prisma falla al generar o migrar:** ejecuta los comandos desde
+  `backend`, confirma que existe `backend\.env`, que `DATABASE_URL` es valida
+  y que MySQL esta iniciado. No borres las migraciones versionadas.
 
 ## Validacion
 
-```powershell
-cd backend
-npm test
+Estos comandos usan los scripts existentes del proyecto:
 
-cd ..\frontend
+```cmd
+cd /d C:\Users\User\Desktop\album\backend
+npm test
+cd /d C:\Users\User\Desktop\album\frontend
 npm run build
 ```
 
-Los tests del backend compilan TypeScript y ejecutan las pruebas de
-autorizacion y validacion; no requieren conectarse a MySQL.
+Los tests del backend compilan TypeScript y ejecutan las pruebas existentes;
+no requieren conectarse a MySQL.
