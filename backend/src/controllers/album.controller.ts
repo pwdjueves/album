@@ -2,6 +2,7 @@ import type { Request, Response } from 'express';
 import { albumService } from '../services/album.service.js';
 import { AppError } from '../utils/app-error.js';
 import { withImageUrl } from '../utils/photo-metadata.js';
+import { canCompleteAlbum, getAlbumAuthorizationContext } from '../services/authorization.service.js';
 import type { CreateAlbumInput, UpdateAlbumInput } from '../validators/album.validator.js';
 
 function getActor(request: Request) {
@@ -45,8 +46,16 @@ export const albumController = {
   },
 
   async getById(request: Request, response: Response): Promise<void> {
-    const album = await albumService.getById(getAlbumId(request), getOptionalActor(request));
-    response.status(200).json({ album: withPhotoMetadata(album) });
+    const albumId = getAlbumId(request);
+    const actor = getOptionalActor(request);
+    const album = await albumService.getById(albumId, actor);
+    const context = await getAlbumAuthorizationContext(albumId, actor);
+    response.status(200).json({
+      album: withPhotoMetadata(album),
+      permissions: {
+        canComplete: context ? canCompleteAlbum(context) : false,
+      },
+    });
   },
 
   async update(request: Request, response: Response): Promise<void> {

@@ -37,7 +37,7 @@ export const voteService = {
 
   async ranking(actor: AuthorizationActor | null, query: RankingQuery) {
     const skip = (query.page - 1) * query.limit;
-    const rows = await voteRepository.ranking(actor?.userId, skip, query.limit + 1);
+    const rows = await voteRepository.ranking(actor?.userId, skip, query.limit + 1, query);
     const hasNextPage = rows.length > query.limit;
     const pageRows = hasNextPage ? rows.slice(0, query.limit) : rows;
     const albums = await albumRepository.findByIds(pageRows.map((row) => row.albumId));

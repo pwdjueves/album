@@ -15,10 +15,23 @@ export const voteRepository = {
     return prisma.vote.count({ where: { albumId } });
   },
 
-  ranking(userId: string | undefined, skip: number, take: number) {
+  ranking(
+    userId: string | undefined,
+    skip: number,
+    take: number,
+    filters: { title?: string; categoryId?: string },
+  ) {
     return prisma.vote.groupBy({
       by: ['albumId'],
-      where: { album: visibleAlbumWhere(userId) },
+      where: {
+        album: {
+          AND: [
+            visibleAlbumWhere(userId),
+            filters.title ? { title: { contains: filters.title } } : {},
+            filters.categoryId ? { categoryId: filters.categoryId } : {},
+          ],
+        },
+      },
       _count: { albumId: true },
       orderBy: [{ _count: { albumId: 'desc' } }, { albumId: 'asc' }],
       skip,

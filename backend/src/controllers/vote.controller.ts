@@ -1,6 +1,7 @@
 import type { Request, Response } from 'express';
 import { voteService } from '../services/vote.service.js';
 import { AppError } from '../utils/app-error.js';
+import type { ValidatedQueryLocals } from '../middleware/validate-query.middleware.js';
 import type { RankingQuery } from '../validators/vote.validator.js';
 
 function getAlbumId(request: Request): string {
@@ -33,8 +34,11 @@ export const voteController = {
     response.status(200).json({ votes: result.count });
   },
 
-  async ranking(request: Request, response: Response): Promise<void> {
-    const ranking = await voteService.ranking(getOptionalActor(request), request.query as unknown as RankingQuery);
+  async ranking(
+    request: Request,
+    response: Response<unknown, ValidatedQueryLocals<RankingQuery>>,
+  ): Promise<void> {
+    const ranking = await voteService.ranking(getOptionalActor(request), response.locals.validatedQuery);
     response.status(200).json(ranking);
   },
 };

@@ -16,6 +16,7 @@ import {
   updateSlotSchema,
 } from '../dist/validators/album-structure.validator.js';
 import { hasExpectedImageSignature } from '../dist/middleware/photo-upload.middleware.js';
+import { validateQuery } from '../dist/middleware/validate-query.middleware.js';
 import { externalPhotoSchema } from '../dist/validators/photo.validator.js';
 import { rankingQuerySchema } from '../dist/validators/vote.validator.js';
 
@@ -143,4 +144,22 @@ test('ranking pagination is bounded and defaults to a stable first page', () => 
   assert.deepEqual(rankingQuerySchema.parse({}), { page: 1, limit: 20 });
   assert.equal(rankingQuerySchema.safeParse({ page: 0, limit: 20 }).success, false);
   assert.equal(rankingQuerySchema.safeParse({ page: 1, limit: 101 }).success, false);
+});
+
+test('query validation stores parsed values without assigning Express 5 request.query', () => {
+  const middleware = validateQuery(rankingQuerySchema);
+  const request = {
+    get query() {
+      return { page: '2', limit: '5' };
+    },
+  };
+  const response = { locals: {} };
+  let nextError;
+
+  middleware(request, response, (error) => {
+    nextError = error;
+  });
+
+  assert.equal(nextError, undefined);
+  assert.deepEqual(response.locals.validatedQuery, { page: 2, limit: 5 });
 });
