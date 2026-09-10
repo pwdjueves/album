@@ -150,6 +150,22 @@ secretos.
 
 ### 5. Instalar dependencias, generar Prisma, migrar y cargar datos
 
+Tambien puedes ejecutar `setup.bat` desde la raiz del proyecto. El script
+comprueba Node.js, npm y el cliente MySQL, crea la base `photo_albums` y el
+usuario local, genera los archivos `.env`, instala las dependencias con los
+lockfiles, aplica las migraciones y ejecuta el seed. Pedira la contraseña de
+`root` de MySQL:
+
+```cmd
+cd /d %USERPROFILE%\Desktop\album
+setup.bat
+```
+
+Si ya existen `.env`, el script los conserva. Revisa que sus valores coincidan
+con tu instalacion antes de continuar.
+
+La forma manual equivalente es:
+
 ```cmd
 cd /d %USERPROFILE%\Desktop\album\backend
 npm ci
@@ -167,6 +183,17 @@ albumes de ejemplo y usuarios de desarrollo.
 ## Ejecutar en desarrollo
 
 Deja MySQL iniciado y abre dos ventanas de **CMD**.
+
+Despues de ejecutar `setup.bat`, puedes abrir ambas ventanas automaticamente
+con:
+
+```cmd
+cd /d %USERPROFILE%\Desktop\album
+start.bat
+```
+
+El script inicia `npm run dev` en backend y frontend. MySQL debe estar
+iniciado antes de ejecutarlo.
 
 CMD 1 (backend):
 
