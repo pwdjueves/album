@@ -9,6 +9,7 @@ where node >nul 2>nul
 if errorlevel 1 (
   echo ERROR: Node.js 22 or newer is required and was not found in PATH.
   echo Install it from https://nodejs.org/ and open a new CMD window.
+  pause
   goto :fail
 )
 where npm >nul 2>nul
@@ -25,6 +26,7 @@ if not defined MYSQL_CMD if exist "C:\Program Files\MySQL\MySQL Server 8.4\bin\m
 if not defined MYSQL_CMD (
   echo ERROR: MySQL client was not found in PATH.
   echo Add the MySQL bin directory to PATH or update the MySQL path in setup.bat.
+  pause
   goto :fail
 )
 
@@ -32,6 +34,7 @@ for /f "tokens=1 delims=." %%V in ('node --version') do set "NODE_MAJOR=%%V"
 set "NODE_MAJOR=%NODE_MAJOR:v=%"
 if %NODE_MAJOR% LSS 22 (
   echo ERROR: Node.js 22 or newer is required.
+  pause
   goto :fail
 )
 
@@ -39,6 +42,7 @@ echo [Album] Creating the local MySQL database and user...
 "%MYSQL_CMD%" -u root -p -e "CREATE DATABASE IF NOT EXISTS photo_albums CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;"
 if errorlevel 1 (
   echo ERROR: MySQL setup failed. Check that MySQL is running and that the root password is correct.
+  pause
   goto :fail
 )
 
@@ -78,24 +82,28 @@ call npm ci
 if errorlevel 1 (
   popd
   echo ERROR: Backend dependency installation failed.
+  pause
   goto :fail
 )
 call npm run prisma:generate
 if errorlevel 1 (
   popd
   echo ERROR: Prisma client generation failed.
+  pause
   goto :fail
 )
 call npx prisma migrate deploy
 if errorlevel 1 (
   popd
   echo ERROR: Prisma migrations failed.
+  pause
   goto :fail
 )
 call npm run prisma:seed
 if errorlevel 1 (
   popd
   echo ERROR: Database seed failed.
+  pause
   goto :fail
 )
 popd
@@ -106,6 +114,7 @@ call npm ci
 if errorlevel 1 (
   popd
   echo ERROR: Frontend dependency installation failed.
+  pause
   goto :fail
 )
 popd
@@ -118,5 +127,6 @@ exit /b 0
 :fail
 echo.
 echo [Album] Setup did not complete.
+pause
 popd
 exit /b 1
