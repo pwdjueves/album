@@ -1,6 +1,5 @@
 @echo off
 setlocal EnableExtensions EnableDelayedExpansion
-set "DB_PASSWORD=album_dev_local_password"
 
 rem Prepare the local development environment from the repository root.
 pushd "%~dp0"
@@ -37,7 +36,7 @@ if %NODE_MAJOR% LSS 22 (
 )
 
 echo [Album] Creating the local MySQL database and user...
-"%MYSQL_CMD%" -u root -p -e "CREATE DATABASE IF NOT EXISTS photo_albums CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci; CREATE USER IF NOT EXISTS 'album_dev'@'localhost' IDENTIFIED BY '%DB_PASSWORD%'; ALTER USER 'album_dev'@'localhost' IDENTIFIED BY '%DB_PASSWORD%'; GRANT ALL PRIVILEGES ON photo_albums.* TO 'album_dev'@'localhost'; FLUSH PRIVILEGES;"
+"%MYSQL_CMD%" -u root -p -e "CREATE DATABASE IF NOT EXISTS photo_albums CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;"
 if errorlevel 1 (
   echo ERROR: MySQL setup failed. Check that MySQL is running and that the root password is correct.
   goto :fail
@@ -47,7 +46,7 @@ if not exist "backend\.env" (
   echo [Album] Creating backend\.env...
   for /f "delims=" %%S in ('node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"') do set "JWT_SECRET=%%S"
   >"backend\.env" (
-    echo DATABASE_URL="mysql://album_dev:%DB_PASSWORD%@127.0.0.1:3306/photo_albums"
+    echo DATABASE_URL="mysql://root:@127.0.0.1:3306/photo_albums"
     echo PORT=3000
     echo NODE_ENV=development
     echo CORS_ORIGIN="http://localhost:5173"
