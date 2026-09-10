@@ -6,18 +6,22 @@ pushd "%~dp0"
 
 if not exist "backend\.env" (
   echo ERROR: backend\.env was not found. Run setup.bat first.
+  pause
   goto :fail
 )
 if not exist "frontend\.env" (
   echo ERROR: frontend\.env was not found. Run setup.bat first.
+  pause
   goto :fail
 )
 if not exist "backend\node_modules" (
   echo ERROR: Backend dependencies were not found. Run setup.bat first.
+  pause
   goto :fail
 )
 if not exist "frontend\node_modules" (
   echo ERROR: Frontend dependencies were not found. Run setup.bat first.
+  pause
   goto :fail
 )
 
