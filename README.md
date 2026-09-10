@@ -86,9 +86,6 @@ locales usados por el `.env` de esta guia:
 
 ```sql
 CREATE DATABASE photo_albums CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
-CREATE USER 'album_dev'@'localhost' IDENTIFIED BY 'album_dev_local_password';
-GRANT ALL PRIVILEGES ON photo_albums.* TO 'album_dev'@'localhost';
-FLUSH PRIVILEGES;
 EXIT;
 ```
 
@@ -219,27 +216,6 @@ Credenciales creadas por el seed (solo desarrollo):
 - `admin@album.local` / `AlbumDev123!`
 - `creator@album.local` / `AlbumDev123!`
 - `collaborator@album.local` / `AlbumDev123!`
-
-## Ejecucion compilada
-
-Backend, en una ventana CMD:
-
-```cmd
-cd /d %USERPROFILE%\Desktop\album\backend
-npm run build
-npm start
-```
-
-Frontend, en otra ventana CMD:
-
-```cmd
-cd /d %USERPROFILE%\Desktop\album\frontend
-npm run build
-npm run preview
-```
-
-Vite mostrara la URL de preview en CMD. Para desarrollo normal, usa
-`npm run dev` como se indica arriba.
 
 ## Solucion de problemas
 
