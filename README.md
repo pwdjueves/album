@@ -178,6 +178,7 @@ npm run dev
 CMD 2 (frontend):
 
 ```cmd
+npm ci
 cd /d %USERPROFILE%\Desktop\album\frontend
 npm run dev
 ```
