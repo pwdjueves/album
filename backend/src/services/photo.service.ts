@@ -39,7 +39,13 @@ export const photoService = {
     }
   },
 
-  async completeFromUpload(albumId: string, pageId: string, slotId: string, upload: StorageUpload, actor: AuthorizationActor) {
+  async completeFromUpload(
+    albumId: string,
+    pageId: string,
+    slotId: string,
+    upload: StorageUpload,
+    actor: AuthorizationActor,
+  ) {
     await assertCanComplete(albumId, actor);
     const imageUrl = await imageStorage.uploadImage(upload);
     try {

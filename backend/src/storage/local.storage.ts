@@ -17,6 +17,6 @@ export class LocalStorage implements StorageProvider {
     await mkdir(env.uploadDir, { recursive: true });
     const filename = `${randomUUID()}${extension}`;
     await writeFile(path.join(env.uploadDir, filename), upload.buffer, { flag: 'wx' });
-    return `${env.publicBaseUrl}/uploads/${filename}`;
+    return `/uploads/${filename}`;
   }
 }

@@ -1,11 +1,31 @@
-import { createContext, useContext, useMemo, useState, type ReactNode } from 'react';
+import { createContext, useContext, useEffect, useMemo, useState, type ReactNode } from 'react';
 import { authService } from '../services/auth.service';
 import type { AuthResponse, ChangePasswordInput, LoginInput, ProfileInput, RegisterInput, User } from '../types/auth';
 type AuthContextValue = { user: User | null; login: (i: LoginInput) => Promise<void>; register: (i: RegisterInput) => Promise<void>; updateProfile: (i: ProfileInput) => Promise<void>; changePassword: (i: ChangePasswordInput) => Promise<void>; logout: () => void };
 const AuthContext = createContext<AuthContextValue | undefined>(undefined);
-function save({ user, token }: AuthResponse) { localStorage.setItem('album_token', token); localStorage.setItem('album_user', JSON.stringify(user)); return user; }
+function save({ user, token }: AuthResponse) {
+  localStorage.setItem('album_token', token);
+  localStorage.setItem('album_user', JSON.stringify(user));
+  return user;
+}
 export function AuthProvider({ children }: { children: ReactNode }) {
-  const [user, setUser] = useState<User | null>(() => { const value = localStorage.getItem('album_user'); return value ? JSON.parse(value) as User : null; });
+  const [user, setUser] = useState<User | null>(() => {
+    const token = localStorage.getItem('album_token')?.trim();
+    const value = localStorage.getItem('album_user');
+    if (!token || !value) return null;
+    try {
+      return JSON.parse(value) as User;
+    } catch {
+      localStorage.removeItem('album_token');
+      localStorage.removeItem('album_user');
+      return null;
+    }
+  });
+  useEffect(() => {
+    const handleUnauthorized = () => setUser(null);
+    window.addEventListener('auth:unauthorized', handleUnauthorized);
+    return () => window.removeEventListener('auth:unauthorized', handleUnauthorized);
+  }, []);
   const value = useMemo(() => ({ user, login: async (i: LoginInput) => setUser(save(await authService.login(i))), register: async (i: RegisterInput) => setUser(save(await authService.register(i))), updateProfile: async (i: ProfileInput) => { const next = await authService.updateProfile(i); localStorage.setItem('album_user', JSON.stringify(next)); setUser(next); }, changePassword: authService.changePassword, logout: () => { localStorage.removeItem('album_token'); localStorage.removeItem('album_user'); setUser(null); } }), [user]);
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 }

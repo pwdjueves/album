@@ -58,16 +58,19 @@ PowerShell. Las partes entre `<...>` se deben adaptar.
 
 ### 2. Obtener el proyecto
 
-Opcion A, usando Git (adapta la URL y la ruta):
+Opcion A, usando Git. Estos comandos descargan el repositorio oficial en el
+Escritorio del usuario actual:
 
 ```cmd
-git clone <URL_DEL_REPOSITORIO> C:\Users\User\Desktop\album
-cd /d C:\Users\User\Desktop\album
+cd /d %USERPROFILE%\Desktop
+git clone https://github.com/pwdjueves/album.git album
+cd /d %USERPROFILE%\Desktop\album
 ```
 
 Opcion B, si se recibio un ZIP: extraelo en
-`C:\Users\User\Desktop\album` (o en otra ruta) y adapta todos los `cd /d` de
-esta guia a esa ruta.
+`%USERPROFILE%\Desktop\album` (o en otra ruta) y adapta todos los `cd /d` de
+esta guia a esa ruta. Si la carpeta `album` ya existe, usa otra carpeta o
+elimina/mueve la copia anterior antes de ejecutar `git clone`.
 
 ### 3. Crear la base de datos
 
@@ -96,7 +99,7 @@ credenciales existentes y ajusta `DATABASE_URL`.
 
 ### 4. Crear los archivos `.env`
 
-Ejecuta desde `C:\Users\User\Desktop\album` (adapta la ruta si corresponde):
+Ejecuta desde `%USERPROFILE%\Desktop\album` (adapta la ruta si corresponde):
 
 ```cmd
 copy backend\.env.example backend\.env
@@ -148,12 +151,12 @@ secretos.
 ### 5. Instalar dependencias, generar Prisma, migrar y cargar datos
 
 ```cmd
-cd /d C:\Users\User\Desktop\album\backend
+cd /d %USERPROFILE%\Desktop\album\backend
 npm ci
 npm run prisma:generate
 npx prisma migrate deploy
 npm run prisma:seed
-cd /d C:\Users\User\Desktop\album\frontend
+cd /d %USERPROFILE%\Desktop\album\frontend
 npm ci
 ```
 
@@ -168,14 +171,14 @@ Deja MySQL iniciado y abre dos ventanas de **CMD**.
 CMD 1 (backend):
 
 ```cmd
-cd /d C:\Users\User\Desktop\album\backend
+cd /d %USERPROFILE%\Desktop\album\backend
 npm run dev
 ```
 
 CMD 2 (frontend):
 
 ```cmd
-cd /d C:\Users\User\Desktop\album\frontend
+cd /d %USERPROFILE%\Desktop\album\frontend
 npm run dev
 ```
 
@@ -194,7 +197,7 @@ Credenciales creadas por el seed (solo desarrollo):
 Backend, en una ventana CMD:
 
 ```cmd
-cd /d C:\Users\User\Desktop\album\backend
+cd /d %USERPROFILE%\Desktop\album\backend
 npm run build
 npm start
 ```
@@ -202,7 +205,7 @@ npm start
 Frontend, en otra ventana CMD:
 
 ```cmd
-cd /d C:\Users\User\Desktop\album\frontend
+cd /d %USERPROFILE%\Desktop\album\frontend
 npm run build
 npm run preview
 ```
@@ -245,9 +248,9 @@ Vite mostrara la URL de preview en CMD. Para desarrollo normal, usa
 Estos comandos usan los scripts existentes del proyecto:
 
 ```cmd
-cd /d C:\Users\User\Desktop\album\backend
+cd /d %USERPROFILE%\Desktop\album\backend
 npm test
-cd /d C:\Users\User\Desktop\album\frontend
+cd /d %USERPROFILE%\Desktop\album\frontend
 npm run build
 ```
 

@@ -1,5 +1,9 @@
-import 'dotenv/config';
+import dotenv from 'dotenv';
+import { fileURLToPath } from 'node:url';
 import path from 'node:path';
+
+const backendRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../..');
+dotenv.config({ path: path.join(backendRoot, '.env') });
 
 function parsePort(value: string | undefined): number {
   if (value === undefined) {
@@ -23,11 +27,12 @@ function parseCorsOrigins(value: string | undefined): string[] {
 
 function requireEnvironmentVariable(name: string): string {
   const value = process.env[name];
-  if (!value) {
+  const normalized = value?.trim();
+  if (!normalized) {
     throw new Error(`${name} must be configured`);
   }
 
-  return value;
+  return normalized;
 }
 
 export const env = {
@@ -35,12 +40,11 @@ export const env = {
   port: parsePort(process.env.PORT),
   corsOrigins: parseCorsOrigins(process.env.CORS_ORIGIN),
   jwtSecret: requireEnvironmentVariable('JWT_SECRET'),
-  jwtExpiresIn: process.env.JWT_EXPIRES_IN ?? '1h',
+  jwtExpiresIn: process.env.JWT_EXPIRES_IN?.trim() || '1h',
   cloudinaryCloudName: process.env.CLOUDINARY_CLOUD_NAME,
   cloudinaryApiKey: process.env.CLOUDINARY_API_KEY,
   cloudinaryApiSecret: process.env.CLOUDINARY_API_SECRET,
   cloudinaryUploadPreset: process.env.CLOUDINARY_UPLOAD_PRESET,
   storageProvider: process.env.STORAGE_PROVIDER ?? 'local',
-  uploadDir: path.resolve(process.env.UPLOAD_DIR ?? 'uploads'),
-  publicBaseUrl: (process.env.PUBLIC_BASE_URL ?? `http://localhost:${parsePort(process.env.PORT)}`).replace(/\/$/, ''),
+  uploadDir: path.resolve(backendRoot, process.env.UPLOAD_DIR ?? 'uploads'),
 } as const;

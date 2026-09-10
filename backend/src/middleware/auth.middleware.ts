@@ -7,12 +7,13 @@ import { AppError } from '../utils/app-error.js';
 export const requireAuth: RequestHandler = async (request, _response, next) => {
   const authorization = request.header('authorization');
 
-  if (!authorization?.startsWith('Bearer ')) {
+  const match = authorization?.match(/^Bearer\s+(\S+)$/i);
+  if (!match) {
     next(new AppError('Authentication is required', 401));
     return;
   }
 
-  const token = authorization.slice('Bearer '.length);
+  const token = match[1];
 
   let payload: JwtPayload | string;
   try {

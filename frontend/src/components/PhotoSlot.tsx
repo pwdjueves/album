@@ -1,6 +1,7 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import type { PhotoSlot as PhotoSlotModel } from '../types/album';
 import { photoService } from '../services/photo.service';
+import { resolvePhotoUrl } from '../utils/photo-url';
 
 type Props = {
   albumId: string;
@@ -15,6 +16,12 @@ export function PhotoSlot({ albumId, pageId, slot, canComplete, canModerate, onC
   const [imageUrl, setImageUrl] = useState('');
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string>();
+  const [imageLoadError, setImageLoadError] = useState(false);
+  const resolvedImageUrl = slot.photo ? resolvePhotoUrl(slot.photo.imageUrl) : '';
+
+  useEffect(() => {
+    setImageLoadError(false);
+  }, [resolvedImageUrl]);
 
   async function completeFromUrl() {
     setBusy(true);
@@ -59,8 +66,25 @@ export function PhotoSlot({ albumId, pageId, slot, canComplete, canModerate, onC
   return (
     <div className={`photo-slot ${slot.photo ? 'photo-slot--filled' : ''}`}>
       <p className="photo-slot__prompt">{slot.prompt}</p>
-      {slot.photo ? (
-        <img className="photo-slot__image" src={slot.photo.imageUrl} alt={slot.prompt} />
+      {slot.photo && !imageLoadError ? (
+        <img
+          className="photo-slot__image"
+          src={resolvedImageUrl}
+          alt={slot.prompt}
+          onError={(event) => {
+            const failedUrl = event.currentTarget.currentSrc || event.currentTarget.src;
+            console.error('Failed to load stored photo', {
+              source: failedUrl,
+              slotId: slot.id,
+            });
+            setImageLoadError(true);
+            setError(`No se pudo cargar la imagen almacenada. URL solicitada: ${failedUrl}`);
+          }}
+        />
+      ) : slot.photo ? (
+        <p className="photo-slot__image-error" role="alert">
+          No se pudo cargar la imagen almacenada.
+        </p>
       ) : (
         <p className="photo-slot__empty">Espacio disponible</p>
       )}
