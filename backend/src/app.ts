@@ -1,3 +1,6 @@
+import { existsSync } from 'node:fs';
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
 import cors from 'cors';
 import express from 'express';
 import helmet from 'helmet';
@@ -48,6 +51,28 @@ app.use('/uploads', (request, response, next) => {
 app.use('/uploads', express.static(env.uploadDir, { index: false }));
 
 app.use('/api', apiRouter);
+
+const frontendDist = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../../frontend/dist');
+const frontendIndex = path.join(frontendDist, 'index.html');
+
+if (existsSync(frontendIndex)) {
+  app.use(express.static(frontendDist));
+  app.get('/{*path}', (request, response, next) => {
+    if (
+      request.path === '/api' ||
+      request.path.startsWith('/api/') ||
+      request.path === '/uploads' ||
+      request.path.startsWith('/uploads/')
+    ) {
+      next();
+      return;
+    }
+
+    response.sendFile(frontendIndex, (error) => {
+      if (error) next(error);
+    });
+  });
+}
 
 app.use(notFoundHandler);
 app.use(errorHandler);
