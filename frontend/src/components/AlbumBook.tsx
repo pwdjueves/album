@@ -23,7 +23,7 @@ export function AlbumBook({ album, canComplete, canModerate = false }: { album: 
         {navigation.currentPages.map((page) => (
           <article className="book-page" key={page.id}>
             <h2>{page.title || `Página ${page.pageNumber}`}</h2>
-            <div className="book-page__slots">
+            <div className={`book-page__slots book-page__slots--${page.photoSlots.length}`}>
               {page.photoSlots.map((slot) => <PhotoSlotView key={slot.id} albumId={album.id} pageId={page.id} slot={slot} canComplete={canComplete} canModerate={canModerate} onCompleted={(slotId, photo) => updateSlot(page.id, slotId, photo)} />)}
             </div>
           </article>

@@ -11,7 +11,7 @@ const pageStructureSchema = z.object({
   slots: z.array(z.object({
     id: z.string().cuid().optional(),
     prompt: z.string().trim().min(1).max(10_000),
-  })).min(1),
+  })).min(1).max(6),
 });
 
 const structureSchema = z.object({ pages: z.array(pageStructureSchema).min(1) })
@@ -37,6 +37,12 @@ export const createAlbumSchema = albumFieldsSchema
   .refine((input) => input.privacy !== AlbumPrivacy.GROUP || input.groupId !== undefined && input.groupId !== null, {
     message: 'A group album requires a groupId',
     path: ['groupId'],
+  })
+  .refine((input) => input.structure !== undefined
+    && input.structure.pages.length >= 2
+    && input.structure.pages.length % 2 === 0, {
+    message: 'A new album must have an even number of pages, with at least two pages',
+    path: ['structure', 'pages'],
   });
 
 export const updateAlbumSchema = albumFieldsSchema

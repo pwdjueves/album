@@ -37,6 +37,7 @@ app.use(
 );
 app.use(express.json());
 app.use('/uploads', (request, response, next) => {
+  response.setHeader('Cross-Origin-Resource-Policy', 'cross-origin');
   response.once('finish', () => {
     if (response.statusCode >= 400) {
       console.error('Stored image request failed', {

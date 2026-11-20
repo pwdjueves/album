@@ -28,5 +28,5 @@ function AlbumContent({ album }: { album: NonNullable<Awaited<ReturnType<typeof 
     }
   }
   const canModerate = album.permissions?.canModerate === true;
-  return <section><Link to="/">← Volver</Link><div className="album-header"><p className="eyebrow">{album.category?.name}</p><h1>{album.title}</h1><p>{album.description}</p><div className="album-vote"><span>♥ {votes?.votes ?? 0} votos</span><button className={`button vote-button ${votes?.voted ? 'is-voted' : ''}`} type="button" disabled={!user || busy} onClick={() => void toggleVote()}>{votes?.voted ? '♥ Votado' : '♡ Upvote'}</button>{!user && <small>Inicia sesión para votar</small>}</div></div><AlbumBook album={album} canComplete={canComplete} canModerate={canModerate} /></section>;
+  return <section className="album-view"><Link to="/">← Volver</Link><div className="album-header"><p className="eyebrow">{album.category?.name}</p><h1>{album.title}</h1><p>{album.description}</p><div className="album-vote"><span>♥ {votes?.votes ?? 0} votos</span><button className={`button vote-button ${votes?.voted ? 'is-voted' : ''}`} type="button" disabled={!user || busy} onClick={() => void toggleVote()}>{votes?.voted ? '♥ Votado' : '♡ Upvote'}</button>{!user && <small>Inicia sesión para votar</small>}</div></div><AlbumBook album={album} canComplete={canComplete} canModerate={canModerate} /></section>;
 }

@@ -42,6 +42,9 @@ function translateStructureError(error: unknown): never {
     if (error.message === 'INVALID_SLOT_ORDER') {
       throw new AppError('slotIds must contain every slot in the page exactly once', 400);
     }
+    if (error.message === 'MAX_SLOTS_PER_PAGE') {
+      throw new AppError('A page cannot contain more than 6 photo slots', 400);
+    }
   }
 
   throw error;

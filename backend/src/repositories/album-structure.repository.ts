@@ -90,6 +90,9 @@ export const albumStructureRepository = {
         where: { pageId },
         orderBy: { position: 'asc' },
       });
+      if (slots.length >= 6) {
+        throw new Error('MAX_SLOTS_PER_PAGE');
+      }
       const targetPosition = position ?? slots.length + 1;
       if (targetPosition > slots.length + 1) {
         throw new Error('INVALID_SLOT_POSITION');

@@ -130,6 +130,24 @@ test('album validation rejects a client-provided creator and incomplete group al
   );
 });
 
+test('new album structures require an even page count and at most six slots per page', () => {
+  const album = {
+    title: 'Sticker album',
+    categoryId: 'cm12345678901234567890123',
+    structure: { pages: [{ title: 'Page 1', slots: [{ prompt: 'First' }] }, { title: 'Page 2', slots: [{ prompt: 'Second' }] }] },
+  };
+  assert.equal(createAlbumSchema.safeParse(album).success, true);
+  assert.equal(createAlbumSchema.safeParse({ ...album, structure: { pages: [album.structure.pages[0]] } }).success, false);
+  assert.equal(createAlbumSchema.safeParse({
+    ...album,
+    structure: { pages: album.structure.pages.map((page) => ({ ...page, slots: Array.from({ length: 6 }, (_, index) => ({ prompt: `Slot ${index + 1}` })) })) },
+  }).success, true);
+  assert.equal(createAlbumSchema.safeParse({
+    ...album,
+    structure: { pages: album.structure.pages.map((page) => ({ ...page, slots: Array.from({ length: 7 }, (_, index) => ({ prompt: `Slot ${index + 1}` })) })) },
+  }).success, false);
+});
+
 test('slot validators reject invalid positions, empty updates and duplicate reorder ids', () => {
   const slotId = 'c123456789012345678901234';
   assert.equal(createSlotSchema.safeParse({ prompt: 'A prompt', position: 0 }).success, false);
