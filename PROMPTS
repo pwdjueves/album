@@ -808,3 +808,13 @@ Y esa vista de "Albumes" que la tenga tambien los usuarios moderadores
 
 PROMPT 22
 Agregame un botoncito para poder intercambiar entre modo oscuro y modo claro, este modo debe aplicarse a TODA LA PAGINA EN TODAS SUS VISTAS
+
+PROMPT 23
+Lee y comprende este proyecto, es una web de albumes de figuritas.
+Quiero cambiar la creacion de albumes y el formato de estos mismos en cuanto a lo visual.
+Primero, al clickear "Crear Album" primero debe pedirte cuantas paginas tendra el album (solo aceptar numeros pares) y debe solicitar cuantas figuritas tendra cada pagina (asi todas las paginas tendran la misma cantidad de figuritas).
+Luego de eso si te mandaria al menu actual de creacion de albumes pero estatico, no podras agregar mas consignas ni mas paginas (EN LA CREACION, luego si se desea editar si se debe poder agregar consignas o paginas) sino que ya tendras la cantidad de paginas y consignas listas para empezar a completarlas para luego presionar Guardar Cambios y que se cree el album. (por ultimo, el maximo de figuritas que se va a permitir por pagina sera de 6)
+Para la vista del album quiero que prepares el album como si fuera un libro, este debe caber con las 8 figuritas por pagina en la pantalla completa SIN TENER QUE HACER SCROLL, sino que se debe poder ver el album y sus figuritas en su totalidad sin necesidad de scroll, ni cuando este vacio el campo de la figurita ni cuando este con una figurita, debe ser un espacio estatico, al cual se le agregara la imagen.
+
+PROMPT 24
+Hace que se vea mas grande el album, esta muy comprimido, definile un tamaño que pueda ocupar todo el espacio disponible en pantalla sin romper nada, y que sea responsivo, no pongas medidas estaticas, pero que el cuadrado donde ira la figurita ya tenga una medida especifica, y que la figurita se adapte a esa medida cuando se coloque
