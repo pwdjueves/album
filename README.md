@@ -153,6 +153,10 @@ usuario local, genera los archivos `.env`, instala las dependencias con los
 lockfiles, aplica las migraciones y ejecuta el seed. Pedira la contraseña de
 `root` de MySQL:
 
+Antes de crear la base de datos, los archivos `.env` o la carpeta de uploads,
+comprueba que Node.js este instalado y que MySQL responda. Si alguna
+comprobacion falla, el script termina sin continuar con la configuracion.
+
 ```cmd
 cd /d %USERPROFILE%\Desktop\album
 setup.bat

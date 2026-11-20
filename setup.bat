@@ -1,41 +1,57 @@
 @echo off
-setlocal EnableExtensions EnableDelayedExpansion
-
-rem Prepare the local development environment from the repository root.
-pushd "%~dp0"
-
-echo [Album] Checking required tools...
 where node >nul 2>nul
-if errorlevel 1 (
-  echo ERROR: Node.js 22 or newer is required and was not found in PATH.
-  echo Install it from https://nodejs.org/ and open a new CMD window.
-  pause
-  goto :fail
-)
-where npm >nul 2>nul
-if errorlevel 1 (
-  echo ERROR: npm was not found in PATH.
-  goto :fail
-)
-set "MYSQL_CMD="
-where mysql >nul 2>nul
-if not errorlevel 1 set "MYSQL_CMD=mysql"
-if not defined MYSQL_CMD if exist "C:\xampp\mysql\bin\mysql.exe" set "MYSQL_CMD=C:\xampp\mysql\bin\mysql.exe"
-if not defined MYSQL_CMD if exist "C:\Program Files\MySQL\MySQL Server 8.0\bin\mysql.exe" set "MYSQL_CMD=C:\Program Files\MySQL\MySQL Server 8.0\bin\mysql.exe"
-if not defined MYSQL_CMD if exist "C:\Program Files\MySQL\MySQL Server 8.4\bin\mysql.exe" set "MYSQL_CMD=C:\Program Files\MySQL\MySQL Server 8.4\bin\mysql.exe"
-if not defined MYSQL_CMD (
-  echo ERROR: MySQL client was not found in PATH.
-  echo Add the MySQL bin directory to PATH or update the MySQL path in setup.bat.
-  pause
-  goto :fail
-)
+if errorlevel 1 goto :fail
+
+setlocal EnableExtensions EnableDelayedExpansion
 
 for /f "tokens=1 delims=." %%V in ('node --version') do set "NODE_MAJOR=%%V"
 set "NODE_MAJOR=%NODE_MAJOR:v=%"
 if %NODE_MAJOR% LSS 22 (
   echo ERROR: Node.js 22 or newer is required.
   pause
-  goto :fail
+  goto :fail_node_version
+)
+
+where npm >nul 2>nul
+if errorlevel 1 (
+  echo ERROR: npm was not found in PATH.
+  pause
+  goto :fail_npm
+)
+
+rem Prepare the local development environment from the repository root.
+pushd "%~dp0"
+
+echo [Album] Checking required tools...
+set "MYSQL_CMD="
+set "MYSQL_ADMIN_CMD="
+where mysql >nul 2>nul
+if not errorlevel 1 set "MYSQL_CMD=mysql"
+where mysqladmin >nul 2>nul
+if not errorlevel 1 set "MYSQL_ADMIN_CMD=mysqladmin"
+if not defined MYSQL_CMD if exist "C:\xampp\mysql\bin\mysql.exe" set "MYSQL_CMD=C:\xampp\mysql\bin\mysql.exe"
+if not defined MYSQL_ADMIN_CMD if exist "C:\xampp\mysql\bin\mysqladmin.exe" set "MYSQL_ADMIN_CMD=C:\xampp\mysql\bin\mysqladmin.exe"
+if not defined MYSQL_CMD if exist "C:\Program Files\MySQL\MySQL Server 8.0\bin\mysql.exe" set "MYSQL_CMD=C:\Program Files\MySQL\MySQL Server 8.0\bin\mysql.exe"
+if not defined MYSQL_ADMIN_CMD if exist "C:\Program Files\MySQL\MySQL Server 8.0\bin\mysqladmin.exe" set "MYSQL_ADMIN_CMD=C:\Program Files\MySQL\MySQL Server 8.0\bin\mysqladmin.exe"
+if not defined MYSQL_CMD if exist "C:\Program Files\MySQL\MySQL Server 8.4\bin\mysql.exe" set "MYSQL_CMD=C:\Program Files\MySQL\MySQL Server 8.4\bin\mysql.exe"
+if not defined MYSQL_ADMIN_CMD if exist "C:\Program Files\MySQL\MySQL Server 8.4\bin\mysqladmin.exe" set "MYSQL_ADMIN_CMD=C:\Program Files\MySQL\MySQL Server 8.4\bin\mysqladmin.exe"
+if not defined MYSQL_CMD (
+  echo ERROR: MySQL client was not found in PATH.
+  echo Add the MySQL bin directory to PATH or update the MySQL path in setup.bat.
+  pause
+  goto :fail_cleanup
+)
+
+echo [Album] Checking whether MySQL is running...
+if defined MYSQL_ADMIN_CMD (
+  "%MYSQL_ADMIN_CMD%" --connect-timeout=3 --host=127.0.0.1 --port=3306 --silent ping >nul 2>nul
+) else (
+  "%MYSQL_CMD%" -u root -p -e "SELECT 1;" >nul
+)
+if errorlevel 1 (
+  echo ERROR: MySQL is not running or cannot be reached. Start MySQL and try again.
+  pause
+  goto :fail_cleanup
 )
 
 echo [Album] Creating the local MySQL database and user...
@@ -43,7 +59,7 @@ echo [Album] Creating the local MySQL database and user...
 if errorlevel 1 (
   echo ERROR: MySQL setup failed. Check that MySQL is running and that the root password is correct.
   pause
-  goto :fail
+  goto :fail_cleanup
 )
 
 if not exist "backend\.env" (
@@ -83,28 +99,28 @@ if errorlevel 1 (
   popd
   echo ERROR: Backend dependency installation failed.
   pause
-  goto :fail
+  goto :fail_cleanup
 )
 call npm run prisma:generate
 if errorlevel 1 (
   popd
   echo ERROR: Prisma client generation failed.
   pause
-  goto :fail
+  goto :fail_cleanup
 )
 call npx prisma migrate deploy
 if errorlevel 1 (
   popd
   echo ERROR: Prisma migrations failed.
   pause
-  goto :fail
+  goto :fail_cleanup
 )
 call npm run prisma:seed
 if errorlevel 1 (
   popd
   echo ERROR: Database seed failed.
   pause
-  goto :fail
+  goto :fail_cleanup
 )
 popd
 
@@ -115,7 +131,7 @@ if errorlevel 1 (
   popd
   echo ERROR: Frontend dependency installation failed.
   pause
-  goto :fail
+  goto :fail_cleanup
 )
 popd
 
@@ -124,9 +140,20 @@ echo [Album] Setup complete. Run start.bat to start the application.
 popd
 exit /b 0
 
-:fail
+:fail_cleanup
 echo.
 echo [Album] Setup did not complete.
-pause
 popd
+exit /b 1
+
+:fail
+echo ERROR: Node.js 22 or newer is required and was not found in PATH.
+echo Install it from https://nodejs.org/ and open a new CMD window.
+pause
+exit /b 1
+
+:fail_node_version
+exit /b 1
+
+:fail_npm
 exit /b 1
